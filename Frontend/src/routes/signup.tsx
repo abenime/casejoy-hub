@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Scale, Loader2 } from "lucide-react";
+import { Scale, Loader2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -56,114 +56,106 @@ function SignupPage() {
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Brand panel */}
-      <div className="relative hidden flex-col justify-between bg-sidebar p-12 text-sidebar-foreground lg:flex">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent text-accent-foreground">
-            <Scale className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold tracking-wide">VANCE &amp; HALE</p>
-            <p className="text-xs text-sidebar-foreground/60">Attorneys at Law</p>
-          </div>
-        </div>
-        <div className="space-y-4">
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight">
-            Join the Client Portal
-          </h1>
-          <p className="max-w-md text-sm text-sidebar-foreground/70">
-            Create an account to securely access documents, track invoices, and message your legal
-            representation.
-          </p>
-        </div>
-        <p className="text-xs text-sidebar-foreground/50">
-          © {new Date().getFullYear()} Vance &amp; Hale LLP
-        </p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-6 sm:p-12 relative">
+      <div className="absolute top-4 left-4 sm:top-8 sm:left-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate({ to: "/" })}
+          className="gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to Home
+        </Button>
       </div>
 
-      {/* Form panel */}
-      <div className="flex items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-sm space-y-8">
+      <div className="w-full max-w-sm space-y-8 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-white shadow-sm">
+            <Scale className="h-6 w-6" />
+          </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold tracking-tight">Create an account</h2>
-            <p className="text-sm text-muted-foreground">Register for your client account.</p>
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Create an account</h2>
+            <p className="text-sm text-slate-500">Register for your client account.</p>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                placeholder="John Doe"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="name@example.com"
-                autoComplete="email"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-                placeholder="+1 (555) 000-0000"
-                autoComplete="tel"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign up
-            </Button>
-          </form>
-
-          <div className="text-center text-sm">
-            <span className="text-muted-foreground">Already have an account? </span>
-            <button
-              type="button"
-              className="font-semibold text-primary hover:underline bg-transparent border-none p-0 cursor-pointer"
-              onClick={() => navigate({ to: "/login" })}
-            >
-              Sign in
-            </button>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-slate-700">Full Name</Label>
+            <Input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="John Doe"
+              className="border-slate-300 focus-visible:ring-slate-900"
+            />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-slate-700">Email address</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="name@example.com"
+              autoComplete="email"
+              className="border-slate-300 focus-visible:ring-slate-900"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-slate-700">Phone number</Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              placeholder="+1 (555) 000-0000"
+              autoComplete="tel"
+              className="border-slate-300 focus-visible:ring-slate-900"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-slate-700">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="new-password"
+              className="border-slate-300 focus-visible:ring-slate-900"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword" className="text-slate-700">Confirm Password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              autoComplete="new-password"
+              className="border-slate-300 focus-visible:ring-slate-900"
+            />
+          </div>
+          <Button type="submit" className="w-full bg-slate-900 hover:bg-slate-800 text-white h-10 mt-2" disabled={submitting}>
+            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create account
+          </Button>
+        </form>
+
+        <div className="text-center text-sm pt-2">
+          <span className="text-slate-500">Already have an account? </span>
+          <button
+            type="button"
+            className="font-semibold text-slate-900 hover:underline bg-transparent border-none p-0 cursor-pointer"
+            onClick={() => navigate({ to: "/login" })}
+          >
+            Sign in
+          </button>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Scale, Loader2 } from "lucide-react";
+import { Scale, Loader2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,99 +48,88 @@ function LoginPage() {
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Brand panel */}
-      <div className="relative hidden flex-col justify-between bg-sidebar p-12 text-sidebar-foreground lg:flex">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent text-accent-foreground">
-            <Scale className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold tracking-wide">VANCE &amp; HALE</p>
-            <p className="text-xs text-sidebar-foreground/60">Attorneys at Law</p>
-          </div>
-        </div>
-        <div className="space-y-4">
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight">
-            One platform for your firm and your clients.
-          </h1>
-          <p className="max-w-md text-sm text-sidebar-foreground/70">
-            Cases, billing, documents, and secure client communication — unified in a workspace
-            built for modern legal teams.
-          </p>
-        </div>
-        <p className="text-xs text-sidebar-foreground/50">
-          © {new Date().getFullYear()} Vance &amp; Hale LLP
-        </p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-6 sm:p-12 relative">
+      <div className="absolute top-4 left-4 sm:top-8 sm:left-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate({ to: "/" })}
+          className="gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to Home
+        </Button>
       </div>
 
-      {/* Form panel */}
-      <div className="flex items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-sm space-y-8">
+      <div className="w-full max-w-sm space-y-8 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-white shadow-sm">
+            <Scale className="h-6 w-6" />
+          </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold tracking-tight">Sign in</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Sign in</h2>
+            <p className="text-sm text-slate-500">
               Access your firm workspace or client portal.
             </p>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Work email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign in
-            </Button>
-          </form>
-
-          <div className="text-center text-sm">
-            <span className="text-muted-foreground">Don't have an account? </span>
-            <button
-              type="button"
-              className="font-semibold text-primary hover:underline bg-transparent border-none p-0 cursor-pointer"
-              onClick={() => navigate({ to: "/signup" })}
-            >
-              Sign up
-            </button>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-slate-700">Work email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              className="border-slate-300 focus-visible:ring-slate-900"
+            />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-slate-700">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              className="border-slate-300 focus-visible:ring-slate-900"
+            />
+          </div>
+          <Button type="submit" className="w-full bg-slate-900 hover:bg-slate-800 text-white h-10" disabled={submitting}>
+            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Sign in
+          </Button>
+        </form>
 
-          <div className="space-y-3">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Demo accounts
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {DEMO_ACCOUNTS.map((acc) => (
-                <button
-                  key={acc.email}
-                  type="button"
-                  onClick={() => quickFill(acc)}
-                  className="rounded-md border border-border bg-card p-2 text-left text-xs transition-colors hover:border-accent hover:bg-accent/5"
-                >
-                  <p className="font-medium text-foreground">{acc.label}</p>
-                  <p className="truncate text-muted-foreground">{acc.email}</p>
-                </button>
-              ))}
-            </div>
+        <div className="text-center text-sm">
+          <span className="text-slate-500">Don't have an account? </span>
+          <button
+            type="button"
+            className="font-semibold text-slate-900 hover:underline bg-transparent border-none p-0 cursor-pointer"
+            onClick={() => navigate({ to: "/signup" })}
+          >
+            Sign up
+          </button>
+        </div>
+
+        <div className="space-y-3 pt-4 border-t border-slate-100">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">
+            Demo accounts
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {DEMO_ACCOUNTS.map((acc) => (
+              <button
+                key={acc.email}
+                type="button"
+                onClick={() => quickFill(acc)}
+                className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-left text-xs transition-colors hover:border-slate-300 hover:bg-slate-100"
+              >
+                <p className="font-medium text-slate-900">{acc.label}</p>
+                <p className="truncate text-slate-500">{acc.email}</p>
+              </button>
+            ))}
           </div>
         </div>
       </div>
