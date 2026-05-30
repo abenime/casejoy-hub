@@ -235,8 +235,8 @@ function ClientDashboard() {
           />
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-lg border border-border bg-card">
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="rounded-lg border border-border bg-card lg:col-span-2">
             <div className="border-b border-border px-5 py-4">
               <h2 className="text-sm font-semibold text-foreground">Your matters</h2>
             </div>
@@ -262,27 +262,50 @@ function ClientDashboard() {
             </div>
           </div>
 
-          <div className="rounded-lg border border-border bg-card">
-            <div className="border-b border-border px-5 py-4">
-              <h2 className="text-sm font-semibold text-foreground">Upcoming with your team</h2>
+          <div className="space-y-6">
+            {/* Quick Actions / Self Service */}
+            <div className="rounded-lg border border-border bg-card">
+              <div className="border-b border-border px-5 py-4">
+                <h2 className="text-sm font-semibold text-foreground">Quick Actions</h2>
+              </div>
+              <div className="p-4 space-y-2">
+                <Button variant="outline" className="w-full justify-start">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Upload Requested Document
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <DollarSign className="mr-2 h-4 w-4" />
+                  Make a Payment
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  Schedule Appointment
+                </Button>
+              </div>
             </div>
-            <div className="divide-y divide-border">
-              {upcoming.map((e) => (
-                <div key={e.id} className="flex items-start gap-3 px-5 py-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent/15 text-accent">
-                    <CalendarIcon className="h-4 w-4" />
+
+            <div className="rounded-lg border border-border bg-card">
+              <div className="border-b border-border px-5 py-4">
+                <h2 className="text-sm font-semibold text-foreground">Upcoming with your team</h2>
+              </div>
+              <div className="divide-y divide-border">
+                {upcoming.map((e) => (
+                  <div key={e.id} className="flex items-start gap-3 px-5 py-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent/15 text-accent">
+                      <CalendarIcon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{e.title}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {e.date} · {e.time}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{e.title}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {e.date} · {e.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {!upcoming.length && (
-                <p className="px-5 py-6 text-sm text-muted-foreground">No upcoming events.</p>
-              )}
+                ))}
+                {!upcoming.length && (
+                  <p className="px-5 py-6 text-sm text-muted-foreground">No upcoming events.</p>
+                )}
+              </div>
             </div>
           </div>
         </div>
