@@ -1,17 +1,44 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Plus, Gavel, Users as UsersIcon, AlertCircle, ChevronLeft, ChevronRight, Sparkles, Clock, CalendarDays, FileText, Trash2, CheckCircle2 } from "lucide-react";
+import {
+  Plus,
+  Gavel,
+  Users as UsersIcon,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Clock,
+  CalendarDays,
+  FileText,
+  Trash2,
+  CheckCircle2,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApi } from "@/lib/use-api";
 import { api } from "@/lib/api";
 import { PageHeader } from "@/components/ui-shared";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,37 +50,40 @@ export const Route = createFileRoute("/app/calendar")({
 });
 
 const TYPE_META: Record<string, { icon: any; cls: string; pillCls: string; label: string }> = {
-  court: { 
-    icon: Gavel, 
-    cls: "bg-amber-100/80 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/40", 
+  court: {
+    icon: Gavel,
+    cls: "bg-amber-100/80 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/40",
     pillCls: "bg-amber-500 hover:bg-amber-600 text-white dark:bg-amber-600 dark:hover:bg-amber-700",
-    label: "Court hearing" 
+    label: "Court hearing",
   },
-  meeting: { 
-    icon: UsersIcon, 
-    cls: "bg-blue-100/80 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/40", 
+  meeting: {
+    icon: UsersIcon,
+    cls: "bg-blue-100/80 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/40",
     pillCls: "bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700",
-    label: "Client meeting" 
+    label: "Client meeting",
   },
-  deadline: { 
-    icon: AlertCircle, 
-    cls: "bg-red-100/80 text-red-800 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/40", 
+  deadline: {
+    icon: AlertCircle,
+    cls: "bg-red-100/80 text-red-800 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/40",
     pillCls: "bg-red-500 hover:bg-red-600 text-white dark:bg-red-600 dark:hover:bg-red-700",
-    label: "Critical deadline" 
+    label: "Critical deadline",
   },
 };
 
 function CalendarPage() {
   const { user, isClient } = useAuth();
   const { data: initialEvents, loading } = useApi(() => api.getEvents(user!), [user?.id]);
-  const { data: initialCases } = useApi(() => api.getUsers().then(users => api.getCases(users[0])), []);
+  const { data: initialCases } = useApi(
+    () => api.getUsers().then((users) => api.getCases(users[0])),
+    [],
+  );
   const { data: initialClients } = useApi(() => api.getClients(), []);
 
   const [events, setEvents] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(2026, 5, 2)); // Start at June 2, 2026 for rich mock data
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date(2026, 5, 1)); // June 2026
   const [currentView, setCurrentView] = useState<"month" | "week" | "day" | "list">("month");
-  
+
   // Event Filter Checkboxes
   const [filterTypes, setFilterTypes] = useState({
     court: true,
@@ -93,9 +123,9 @@ function CalendarPage() {
     const month = date.getMonth();
     const daysInMonth = getDaysInMonth(year, month);
     const startWeekday = getStartWeekdayOfMonth(year, month);
-    
+
     const grid: { date: Date; isCurrentMonth: boolean }[] = [];
-    
+
     // Prev Month Outside Days
     const prevYear = month === 0 ? year - 1 : year;
     const prevMonth = month === 0 ? 11 : month - 1;
@@ -103,18 +133,18 @@ function CalendarPage() {
     for (let i = startWeekday - 1; i >= 0; i--) {
       grid.push({
         date: new Date(prevYear, prevMonth, daysInPrevMonth - i),
-        isCurrentMonth: false
+        isCurrentMonth: false,
       });
     }
-    
+
     // Current Month Days
     for (let d = 1; d <= daysInMonth; d++) {
       grid.push({
         date: new Date(year, month, d),
-        isCurrentMonth: true
+        isCurrentMonth: true,
       });
     }
-    
+
     // Next Month Outside Days
     const totalSlots = grid.length > 35 ? 42 : 35;
     const nextYear = month === 11 ? year + 1 : year;
@@ -123,10 +153,10 @@ function CalendarPage() {
     while (grid.length < totalSlots) {
       grid.push({
         date: new Date(nextYear, nextMonth, nextDay++),
-        isCurrentMonth: false
+        isCurrentMonth: false,
       });
     }
-    
+
     return grid;
   };
 
@@ -134,7 +164,7 @@ function CalendarPage() {
     const currentDay = date.getDay();
     const startOfWeek = new Date(date);
     startOfWeek.setDate(date.getDate() - currentDay); // start at Sunday
-    
+
     const weekDays: Date[] = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(startOfWeek);
@@ -145,16 +175,18 @@ function CalendarPage() {
   };
 
   // Filter events
-  const filteredEvents = events.filter(e => {
+  const filteredEvents = events.filter((e) => {
     const typeEnabled = filterTypes[e.type as keyof typeof filterTypes] ?? true;
     return typeEnabled;
   });
 
   // Check if dates match (ignoring time)
   const isSameDay = (d1: Date, d2: Date) => {
-    return d1.getFullYear() === d2.getFullYear() &&
-           d1.getMonth() === d2.getMonth() &&
-           d1.getDate() === d2.getDate();
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
   };
 
   // Format date string YYYY-MM-DD
@@ -219,10 +251,10 @@ function CalendarPage() {
       time: formData.time,
       caseId: formData.caseId || null,
       reminder: formData.reminder,
-      notes: formData.notes.trim() || "No internal notes provided."
+      notes: formData.notes.trim() || "No internal notes provided.",
     };
 
-    setEvents(prev => [...prev, newEvent]);
+    setEvents((prev) => [...prev, newEvent]);
     setCreateOpen(false);
     setFormData({
       title: "",
@@ -231,20 +263,26 @@ function CalendarPage() {
       time: "10:00",
       caseId: "",
       reminder: "1h",
-      notes: ""
+      notes: "",
     });
     toast.success("Event scheduled successfully");
   };
 
   const handleDeleteEvent = (eventId: string) => {
-    setEvents(prev => prev.filter(e => e.id !== eventId));
+    setEvents((prev) => prev.filter((e) => e.id !== eventId));
     setDetailOpen(false);
     setSelectedEvent(null);
     toast.success("Event canceled successfully");
   };
 
   // Helper to trigger recommended action addition
-  const handleAutoSchedule = (title: string, type: string, dateStr: string, timeStr: string, caseId: string) => {
+  const handleAutoSchedule = (
+    title: string,
+    type: string,
+    dateStr: string,
+    timeStr: string,
+    caseId: string,
+  ) => {
     setFormData({
       title,
       type,
@@ -252,7 +290,7 @@ function CalendarPage() {
       time: timeStr,
       caseId,
       reminder: "1d",
-      notes: "AI Recommended Preparation scheduling."
+      notes: "AI Recommended Preparation scheduling.",
     });
     setCreateOpen(true);
   };
@@ -271,7 +309,11 @@ function CalendarPage() {
     <div className="flex flex-col h-full bg-background">
       <PageHeader
         title={isClient ? "Your Schedule" : "Firm Calendar"}
-        description={isClient ? "Court dates, appointments, and critical deadlines linked to your cases." : "Manage firm schedule, track court trials, client hearings, and caseload deadlines."}
+        description={
+          isClient
+            ? "Court dates, appointments, and critical deadlines linked to your cases."
+            : "Manage firm schedule, track court trials, client hearings, and caseload deadlines."
+        }
         actions={
           !isClient && (
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
@@ -394,7 +436,12 @@ function CalendarPage() {
                     <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
                       Cancel
                     </Button>
-                    <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90">Save Event</Button>
+                    <Button
+                      type="submit"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      Save Event
+                    </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
@@ -426,7 +473,9 @@ function CalendarPage() {
 
           {/* Quick Category Filters */}
           <div className="space-y-2 px-1">
-            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Caseload Categories</h4>
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              Caseload Categories
+            </h4>
             <div className="space-y-1.5 pt-1">
               <button
                 onClick={() => setFilterTypes({ ...filterTypes, court: !filterTypes.court })}
@@ -439,7 +488,9 @@ function CalendarPage() {
                 <span className="flex items-center gap-2">
                   <Gavel className="h-4 w-4 text-amber-600" /> Court Dates
                 </span>
-                <span className={`h-2.5 w-2.5 rounded-full ${filterTypes.court ? "bg-amber-500" : "bg-muted"}`} />
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${filterTypes.court ? "bg-amber-500" : "bg-muted"}`}
+                />
               </button>
 
               <button
@@ -453,7 +504,9 @@ function CalendarPage() {
                 <span className="flex items-center gap-2">
                   <UsersIcon className="h-4 w-4 text-blue-600" /> Meetings
                 </span>
-                <span className={`h-2.5 w-2.5 rounded-full ${filterTypes.meeting ? "bg-blue-500" : "bg-muted"}`} />
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${filterTypes.meeting ? "bg-blue-500" : "bg-muted"}`}
+                />
               </button>
 
               <button
@@ -467,7 +520,9 @@ function CalendarPage() {
                 <span className="flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-red-600" /> Deadlines
                 </span>
-                <span className={`h-2.5 w-2.5 rounded-full ${filterTypes.deadline ? "bg-red-500" : "bg-muted"}`} />
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${filterTypes.deadline ? "bg-red-500" : "bg-muted"}`}
+                />
               </button>
             </div>
           </div>
@@ -477,16 +532,27 @@ function CalendarPage() {
             <Card className="border border-primary/20 bg-primary/5 shadow-2xs">
               <CardHeader className="p-3 pb-2 flex flex-row items-center gap-1.5 text-primary">
                 <Sparkles className="h-4 w-4 animate-pulse" />
-                <CardTitle className="text-xs font-bold uppercase tracking-wider m-0">AI Action Prompts</CardTitle>
+                <CardTitle className="text-xs font-bold uppercase tracking-wider m-0">
+                  AI Action Prompts
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-3 pt-0 space-y-2.5">
                 <div className="p-2.5 bg-background rounded border border-primary/10 space-y-2">
                   <p className="text-[10px] leading-relaxed text-foreground/80 font-medium">
-                    🔴 <strong>State v. Holloway</strong> trial starts on June 5. Pre-trial preparation meeting is recommended.
+                    🔴 <strong>State v. Holloway</strong> trial starts on June 5. Pre-trial
+                    preparation meeting is recommended.
                   </p>
                   <Button
                     size="xs"
-                    onClick={() => handleAutoSchedule("Holloway Pre-trial Prep", "meeting", "2026-06-03", "14:00", "c4")}
+                    onClick={() =>
+                      handleAutoSchedule(
+                        "Holloway Pre-trial Prep",
+                        "meeting",
+                        "2026-06-03",
+                        "14:00",
+                        "c4",
+                      )
+                    }
                     className="w-full text-[10px] h-6 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/95"
                   >
                     Schedule Prep Meeting
@@ -495,11 +561,20 @@ function CalendarPage() {
 
                 <div className="p-2.5 bg-background rounded border border-primary/10 space-y-2">
                   <p className="text-[10px] leading-relaxed text-foreground/80 font-medium">
-                    🟡 <strong>Trust amendment v3</strong> deadline is June 8. Client estate draft consultation recommended.
+                    🟡 <strong>Trust amendment v3</strong> deadline is June 8. Client estate draft
+                    consultation recommended.
                   </p>
                   <Button
                     size="xs"
-                    onClick={() => handleAutoSchedule("Estate Planning Consultation", "meeting", "2026-06-06", "10:30", "c2")}
+                    onClick={() =>
+                      handleAutoSchedule(
+                        "Estate Planning Consultation",
+                        "meeting",
+                        "2026-06-06",
+                        "10:30",
+                        "c2",
+                      )
+                    }
                     className="w-full text-[10px] h-6 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/95"
                   >
                     Schedule Consultation
@@ -517,19 +592,41 @@ function CalendarPage() {
             {/* Nav Arrows */}
             <div className="flex items-center gap-2">
               <h2 className="text-base font-bold text-foreground w-[160px] select-none">
-                {currentView === "month" && currentMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-                {currentView === "week" && `Week of ${weekDays[0].toLocaleDateString("en-US", { month: "short", day: "numeric" })}`}
-                {currentView === "day" && selectedDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                {currentView === "month" &&
+                  currentMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                {currentView === "week" &&
+                  `Week of ${weekDays[0].toLocaleDateString("en-US", { month: "short", day: "numeric" })}`}
+                {currentView === "day" &&
+                  selectedDate.toLocaleDateString("en-US", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                  })}
                 {currentView === "list" && "Caseload Timeline"}
               </h2>
               <div className="flex gap-1">
-                <Button variant="outline" size="icon" className="h-8 w-8 cursor-pointer" onClick={handlePrev}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 cursor-pointer"
+                  onClick={handlePrev}
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="sm" className="h-8 text-xs cursor-pointer" onClick={handleToday}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs cursor-pointer"
+                  onClick={handleToday}
+                >
                   Today
                 </Button>
-                <Button variant="outline" size="icon" className="h-8 w-8 cursor-pointer" onClick={handleNext}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 cursor-pointer"
+                  onClick={handleNext}
+                >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -542,10 +639,18 @@ function CalendarPage() {
               className="w-full sm:w-auto"
             >
               <TabsList className="grid grid-cols-4 bg-muted/40 p-1 border border-border/80 rounded-lg">
-                <TabsTrigger value="month" className="text-xs py-1.5 cursor-pointer">Month</TabsTrigger>
-                <TabsTrigger value="week" className="text-xs py-1.5 cursor-pointer">Week</TabsTrigger>
-                <TabsTrigger value="day" className="text-xs py-1.5 cursor-pointer">Day</TabsTrigger>
-                <TabsTrigger value="list" className="text-xs py-1.5 cursor-pointer">List</TabsTrigger>
+                <TabsTrigger value="month" className="text-xs py-1.5 cursor-pointer">
+                  Month
+                </TabsTrigger>
+                <TabsTrigger value="week" className="text-xs py-1.5 cursor-pointer">
+                  Week
+                </TabsTrigger>
+                <TabsTrigger value="day" className="text-xs py-1.5 cursor-pointer">
+                  Day
+                </TabsTrigger>
+                <TabsTrigger value="list" className="text-xs py-1.5 cursor-pointer">
+                  List
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -557,7 +662,7 @@ function CalendarPage() {
                 Loading schedule canvas...
               </div>
             )}
-            
+
             {!loading && (
               <>
                 {/* MONTH VIEW GRID */}
@@ -577,16 +682,18 @@ function CalendarPage() {
                     <div className="grid grid-cols-7 grid-rows-6 flex-1 divide-x divide-y divide-border border-b border-border">
                       {monthGrid.map((cell, idx) => {
                         const cellDateStr = formatDateString(cell.date);
-                        const dayEvents = filteredEvents.filter(e => e.date === cellDateStr);
+                        const dayEvents = filteredEvents.filter((e) => e.date === cellDateStr);
                         const isTodayDate = isSameDay(cell.date, new Date(2026, 5, 2)); // Mock Today June 2, 2026
                         const isSelected = isSameDay(cell.date, selectedDate);
-                        
+
                         return (
                           <div
                             key={idx}
                             onClick={() => setSelectedDate(cell.date)}
                             className={`p-1.5 flex flex-col min-h-[90px] transition-all hover:bg-muted/10 cursor-pointer ${
-                              cell.isCurrentMonth ? "bg-card text-foreground" : "bg-muted/20 text-muted-foreground"
+                              cell.isCurrentMonth
+                                ? "bg-card text-foreground"
+                                : "bg-muted/20 text-muted-foreground"
                             } ${
                               isSelected ? "ring-2 ring-primary/40 ring-inset bg-primary/2" : ""
                             }`}
@@ -603,11 +710,11 @@ function CalendarPage() {
                                 {cell.date.getDate()}
                               </span>
                             </div>
-                            
+
                             {/* Event Badges list */}
                             <ScrollArea className="flex-1">
                               <div className="space-y-1">
-                                {dayEvents.slice(0, 3).map(e => {
+                                {dayEvents.slice(0, 3).map((e) => {
                                   const meta = TYPE_META[e.type] ?? TYPE_META.meeting;
                                   return (
                                     <div
@@ -619,7 +726,9 @@ function CalendarPage() {
                                       }}
                                       className={`text-[9px] px-1.5 py-0.5 rounded-sm border font-medium truncate flex items-center gap-1 shadow-2xs hover:scale-[1.02] active:scale-95 transition-all ${meta.cls}`}
                                     >
-                                      <span className="font-semibold tabular-nums shrink-0">{e.time}</span>
+                                      <span className="font-semibold tabular-nums shrink-0">
+                                        {e.time}
+                                      </span>
                                       <span className="truncate">{e.title}</span>
                                     </div>
                                   );
@@ -643,17 +752,21 @@ function CalendarPage() {
                   <div className="h-full grid grid-cols-7 divide-x divide-border min-w-[700px] overflow-auto bg-card">
                     {weekDays.map((day, idx) => {
                       const dayStr = formatDateString(day);
-                      const dayEvents = filteredEvents.filter(e => e.date === dayStr);
+                      const dayEvents = filteredEvents.filter((e) => e.date === dayStr);
                       const isTodayDate = isSameDay(day, new Date(2026, 5, 2));
-                      
+
                       return (
                         <div key={idx} className="flex flex-col h-full bg-card min-w-[100px]">
                           {/* Column Header */}
-                          <div className={`p-3 text-center border-b border-border space-y-0.5 ${isTodayDate ? "bg-primary/5" : "bg-muted/10"}`}>
+                          <div
+                            className={`p-3 text-center border-b border-border space-y-0.5 ${isTodayDate ? "bg-primary/5" : "bg-muted/10"}`}
+                          >
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                               {day.toLocaleDateString("en-US", { weekday: "short" })}
                             </p>
-                            <p className={`text-sm font-extrabold h-6 w-6 flex items-center justify-center mx-auto rounded-full ${isTodayDate ? "bg-primary text-primary-foreground" : "text-foreground"}`}>
+                            <p
+                              className={`text-sm font-extrabold h-6 w-6 flex items-center justify-center mx-auto rounded-full ${isTodayDate ? "bg-primary text-primary-foreground" : "text-foreground"}`}
+                            >
                               {day.getDate()}
                             </p>
                           </div>
@@ -661,9 +774,11 @@ function CalendarPage() {
                           <ScrollArea className="flex-1">
                             <div className="p-2 space-y-2">
                               {dayEvents.length === 0 ? (
-                                <p className="text-[9px] text-muted-foreground/60 text-center py-6">No scheduled entries.</p>
+                                <p className="text-[9px] text-muted-foreground/60 text-center py-6">
+                                  No scheduled entries.
+                                </p>
                               ) : (
-                                dayEvents.map(e => {
+                                dayEvents.map((e) => {
                                   const meta = TYPE_META[e.type] ?? TYPE_META.meeting;
                                   const Icon = meta.icon;
                                   return (
@@ -681,7 +796,9 @@ function CalendarPage() {
                                         </span>
                                         <Icon className="h-3 w-3 shrink-0" />
                                       </div>
-                                      <p className="text-[10px] font-semibold leading-normal text-foreground truncate-2-lines">{e.title}</p>
+                                      <p className="text-[10px] font-semibold leading-normal text-foreground truncate-2-lines">
+                                        {e.title}
+                                      </p>
                                     </div>
                                   );
                                 })
@@ -703,7 +820,10 @@ function CalendarPage() {
                         const hr = i + 8;
                         const label = hr < 12 ? `${hr} AM` : hr === 12 ? "12 PM" : `${hr - 12} PM`;
                         return (
-                          <div key={i} className="h-20 text-[9px] font-bold text-muted-foreground text-center flex items-start justify-center pt-0.5 tabular-nums">
+                          <div
+                            key={i}
+                            className="h-20 text-[9px] font-bold text-muted-foreground text-center flex items-start justify-center pt-0.5 tabular-nums"
+                          >
                             {label}
                           </div>
                         );
@@ -713,20 +833,21 @@ function CalendarPage() {
                     <ScrollArea className="flex-1 h-full relative">
                       <div className="p-4 pr-6 space-y-4">
                         {/* Selected day events list positioned logically */}
-                        {filteredEvents.filter(e => e.date === formatDateString(selectedDate)).length === 0 ? (
+                        {filteredEvents.filter((e) => e.date === formatDateString(selectedDate))
+                          .length === 0 ? (
                           <div className="h-64 flex flex-col items-center justify-center text-muted-foreground text-sm text-center">
                             <Clock className="h-10 w-10 mb-2 opacity-30 text-muted-foreground" />
                             <p>No entries scheduled for this date.</p>
                           </div>
                         ) : (
                           filteredEvents
-                            .filter(e => e.date === formatDateString(selectedDate))
+                            .filter((e) => e.date === formatDateString(selectedDate))
                             .sort((a, b) => a.time.localeCompare(b.time))
-                            .map(e => {
+                            .map((e) => {
                               const meta = TYPE_META[e.type] ?? TYPE_META.meeting;
                               const Icon = meta.icon;
-                              const linkedCase = initialCases?.find(c => c.id === e.caseId);
-                              
+                              const linkedCase = initialCases?.find((c) => c.id === e.caseId);
+
                               return (
                                 <div
                                   key={e.id}
@@ -741,21 +862,29 @@ function CalendarPage() {
                                   </div>
                                   <div className="flex-1 min-w-0 space-y-1">
                                     <div className="flex items-center gap-2">
-                                      <Badge variant="outline" className="text-[8px] tracking-wide uppercase px-1.5 py-0">
+                                      <Badge
+                                        variant="outline"
+                                        className="text-[8px] tracking-wide uppercase px-1.5 py-0"
+                                      >
                                         {meta.label}
                                       </Badge>
                                       <span className="text-[10px] font-bold tabular-nums text-foreground flex items-center gap-1 ml-auto">
                                         <Clock className="h-3 w-3" /> {e.time}
                                       </span>
                                     </div>
-                                    <h3 className="font-bold text-foreground text-sm truncate leading-snug">{e.title}</h3>
+                                    <h3 className="font-bold text-foreground text-sm truncate leading-snug">
+                                      {e.title}
+                                    </h3>
                                     {linkedCase && (
                                       <p className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-                                        <FileText className="h-3.5 w-3.5" /> Case: {linkedCase.number} — {linkedCase.title}
+                                        <FileText className="h-3.5 w-3.5" /> Case:{" "}
+                                        {linkedCase.number} — {linkedCase.title}
                                       </p>
                                     )}
                                     {e.notes && (
-                                      <p className="text-xs text-muted-foreground/90 italic truncate mt-1">"{e.notes}"</p>
+                                      <p className="text-xs text-muted-foreground/90 italic truncate mt-1">
+                                        "{e.notes}"
+                                      </p>
                                     )}
                                   </div>
                                 </div>
@@ -777,11 +906,11 @@ function CalendarPage() {
                           <p>No calendar events found matching the active filters.</p>
                         </div>
                       ) : (
-                        sortedListEvents.map(e => {
+                        sortedListEvents.map((e) => {
                           const meta = TYPE_META[e.type] ?? TYPE_META.meeting;
                           const Icon = meta.icon;
-                          const linkedCase = initialCases?.find(c => c.id === e.caseId);
-                          
+                          const linkedCase = initialCases?.find((c) => c.id === e.caseId);
+
                           return (
                             <div
                               key={e.id}
@@ -792,13 +921,19 @@ function CalendarPage() {
                               className={`p-4 rounded-xl border bg-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:shadow-xs transition-all hover:bg-muted/30 border-l-4 border-l-primary`}
                             >
                               <div className="flex items-center gap-3 min-w-0">
-                                <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 border ${meta.cls}`}>
+                                <div
+                                  className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 border ${meta.cls}`}
+                                >
                                   <Icon className="h-4 w-4" />
                                 </div>
                                 <div className="min-w-0">
-                                  <h3 className="text-sm font-bold text-foreground truncate leading-snug">{e.title}</h3>
+                                  <h3 className="text-sm font-bold text-foreground truncate leading-snug">
+                                    {e.title}
+                                  </h3>
                                   <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground font-semibold">
-                                    <span className="text-[10px] tracking-wider uppercase text-primary">{meta.label}</span>
+                                    <span className="text-[10px] tracking-wider uppercase text-primary">
+                                      {meta.label}
+                                    </span>
                                     {linkedCase && (
                                       <span className="flex items-center gap-1">
                                         <FileText className="h-3.5 w-3.5" /> {linkedCase.number}
@@ -809,7 +944,13 @@ function CalendarPage() {
                               </div>
                               <div className="shrink-0 flex items-center gap-2 self-end sm:self-center bg-secondary/80 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold tabular-nums text-foreground">
                                 <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span>{new Date(e.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                                <span>
+                                  {new Date(e.date).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })}
+                                </span>
                                 <span className="text-muted-foreground font-medium">•</span>
                                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                                 <span>{e.time}</span>
@@ -833,11 +974,17 @@ function CalendarPage() {
           <DialogContent className="sm:max-w-[440px]">
             <DialogHeader>
               <div className="flex items-center gap-2 mb-1.5">
-                <Badge variant="outline" className={`text-[9px] font-bold uppercase tracking-wider py-0.5 px-2 ${TYPE_META[selectedEvent.type]?.cls}`}>
+                <Badge
+                  variant="outline"
+                  className={`text-[9px] font-bold uppercase tracking-wider py-0.5 px-2 ${TYPE_META[selectedEvent.type]?.cls}`}
+                >
                   {TYPE_META[selectedEvent.type]?.label}
                 </Badge>
                 {selectedEvent.reminder !== "none" && (
-                  <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-wider py-0.5 px-2 bg-success/15 text-success border-success/20">
+                  <Badge
+                    variant="outline"
+                    className="text-[9px] font-bold uppercase tracking-wider py-0.5 px-2 bg-success/15 text-success border-success/20"
+                  >
                     Reminder Active
                   </Badge>
                 )}
@@ -853,7 +1000,9 @@ function CalendarPage() {
                 <div className="flex items-center gap-2">
                   <CalendarDays className="h-4.5 w-4.5 text-muted-foreground" />
                   <div>
-                    <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Scheduled Date</p>
+                    <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+                      Scheduled Date
+                    </p>
                     <p className="font-semibold text-foreground">
                       {new Date(selectedEvent.date).toLocaleDateString("en-US", {
                         weekday: "short",
@@ -868,8 +1017,12 @@ function CalendarPage() {
                 <div className="flex items-center gap-2 pr-4">
                   <Clock className="h-4.5 w-4.5 text-muted-foreground" />
                   <div>
-                    <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Scheduled Time</p>
-                    <p className="font-semibold text-foreground tabular-nums">{selectedEvent.time}</p>
+                    <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+                      Scheduled Time
+                    </p>
+                    <p className="font-semibold text-foreground tabular-nums">
+                      {selectedEvent.time}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -877,19 +1030,25 @@ function CalendarPage() {
               {/* Linked Case */}
               {selectedEvent.caseId && (
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Linked Case Matter</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    Linked Case Matter
+                  </p>
                   {(() => {
-                    const matchedCase = initialCases?.find(c => c.id === selectedEvent.caseId);
+                    const matchedCase = initialCases?.find((c) => c.id === selectedEvent.caseId);
                     return matchedCase ? (
                       <div className="p-3 rounded-lg border border-border/60 flex items-start gap-2.5">
                         <FileText className="h-4.5 w-4.5 text-primary shrink-0 mt-0.5" />
                         <div>
                           <p className="font-bold text-foreground text-xs">{matchedCase.title}</p>
-                          <p className="text-[10px] text-muted-foreground font-medium mt-0.5">Case Number: {matchedCase.number} • Lead: {matchedCase.lead}</p>
+                          <p className="text-[10px] text-muted-foreground font-medium mt-0.5">
+                            Case Number: {matchedCase.number} • Lead: {matchedCase.lead}
+                          </p>
                         </div>
                       </div>
                     ) : (
-                      <p className="text-xs text-muted-foreground font-medium italic">Case matter not found in active records.</p>
+                      <p className="text-xs text-muted-foreground font-medium italic">
+                        Case matter not found in active records.
+                      </p>
                     );
                   })()}
                 </div>
@@ -897,7 +1056,9 @@ function CalendarPage() {
 
               {/* Notes */}
               <div className="space-y-1.5">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Internal Instructions & Agenda</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Internal Instructions & Agenda
+                </p>
                 <div className="p-3 rounded-lg border bg-muted/10 italic text-xs text-foreground/80 leading-relaxed max-h-32 overflow-y-auto">
                   "{selectedEvent.notes || "No additional guidelines or memos were documented."}"
                 </div>
@@ -914,8 +1075,14 @@ function CalendarPage() {
                 >
                   <Trash2 className="h-3.5 w-3.5 mr-1" /> Cancel Event
                 </Button>
-              ) : <div />}
-              <Button type="button" onClick={() => setDetailOpen(false)} className="text-xs h-8 px-4 bg-primary text-primary-foreground hover:bg-primary/95">
+              ) : (
+                <div />
+              )}
+              <Button
+                type="button"
+                onClick={() => setDetailOpen(false)}
+                className="text-xs h-8 px-4 bg-primary text-primary-foreground hover:bg-primary/95"
+              >
                 Close
               </Button>
             </DialogFooter>

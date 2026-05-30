@@ -15,7 +15,7 @@ describe("Accessible Design System Compliance", () => {
           <Dropdown.Item>Item 1</Dropdown.Item>
           <Dropdown.Item>Item 2</Dropdown.Item>
         </Dropdown.Content>
-      </Dropdown>
+      </Dropdown>,
     );
 
     // Initial state: not expanded
@@ -50,7 +50,7 @@ describe("Accessible Design System Compliance", () => {
           <Modal.Title>Accessible Title</Modal.Title>
           <button>Focusable Inside</button>
         </Modal.Content>
-      </Modal>
+      </Modal>,
     );
 
     // Open Modal
