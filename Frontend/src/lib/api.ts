@@ -20,6 +20,7 @@ export interface User {
   title: string;
   avatar: string;
   caseIds?: string[];
+  phone?: string;
 }
 
 export interface Case {
@@ -41,21 +42,121 @@ export interface Case {
   priority: "low" | "medium" | "high";
 }
 
+const getLocalUsers = (): User[] => {
+  if (typeof window === "undefined") return usersData as User[];
+  const stored = typeof window !== "undefined" ? localStorage.getItem("casejoy.users") : null;
+  if (!stored) {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("casejoy.users", JSON.stringify(usersData));
+    }
+    return usersData as User[];
+  }
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return usersData as User[];
+  }
+};
+
+const saveLocalUsers = (users: User[]) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("casejoy.users", JSON.stringify(users));
+  }
+};
+
 const delay = <T>(value: T, ms = 120): Promise<T> =>
   new Promise((resolve) => setTimeout(() => resolve(value), ms));
 
 export const api = {
   // Auth
   async login(email: string, password: string): Promise<User | null> {
-    const user = (usersData as User[]).find(
+    const user = getLocalUsers().find(
       (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password,
     );
     return delay(user ?? null, 250);
   },
 
+  async signUp(name: string, email: string, password: string, phone?: string): Promise<User> {
+    const users = getLocalUsers();
+    const exists = users.some((u) => u.email.toLowerCase() === email.toLowerCase());
+    if (exists) {
+      throw new Error("Email already registered");
+    }
+
+    const initials = name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U";
+
+    const newUser: User = {
+      id: `u-${Date.now()}`,
+      email,
+      password,
+      name,
+      role: "client",
+      title: "Client",
+      avatar: initials,
+      caseIds: [],
+      phone,
+    };
+
+    const updated = [...users, newUser];
+    saveLocalUsers(updated);
+    return delay(newUser, 250);
+  },
+
+  async updateUserRole(userId: string, newRole: Role): Promise<User> {
+    const users = getLocalUsers();
+    let updatedUser: User | null = null;
+
+    const titleMap: Record<Role, string> = {
+      admin: "Managing Partner",
+      lawyer: "Attorney",
+      paralegal: "Paralegal",
+      client: "Client",
+    };
+
+    const updated = users.map((u) => {
+      if (u.id === userId) {
+        updatedUser = {
+          ...u,
+          role: newRole,
+          title: titleMap[newRole] || u.title,
+        };
+        return updatedUser;
+      }
+      return u;
+    });
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    saveLocalUsers(updated);
+
+    // Sync session if updating current logged in user
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("lawfirm.auth.user");
+      if (stored) {
+        try {
+          const currentSession = JSON.parse(stored) as User;
+          if (currentSession.id === userId) {
+            localStorage.setItem("lawfirm.auth.user", JSON.stringify(updatedUser));
+          }
+        } catch {
+          // Ignore
+        }
+      }
+    }
+
+    return delay(updatedUser, 120);
+  },
+
   // Users
-  getUsers: () => delay(usersData as User[]),
-  getStaff: () => delay((usersData as User[]).filter((u) => u.role !== "client")),
+  getUsers: () => delay(getLocalUsers()),
+  getStaff: () => delay(getLocalUsers().filter((u) => u.role !== "client")),
 
   // Cases — scoped by role
   async getCases(user: User) {
