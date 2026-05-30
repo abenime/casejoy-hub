@@ -76,6 +76,15 @@ function DocumentsPage() {
   const [deleteDoc, setDeleteDoc] = useState<DocumentItem | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [signedDocIds, setSignedDocIds] = useState<string[]>([]);
+  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+
+  const MOCK_TEMPLATES = [
+    { id: "tpl_1", name: "Client Intake Form", category: "Onboarding" },
+    { id: "tpl_2", name: "Retainer Agreement", category: "Contracts" },
+    { id: "tpl_3", name: "Non-Disclosure Agreement (NDA)", category: "Contracts" },
+    { id: "tpl_4", name: "General Civil Complaint", category: "Litigation" },
+    { id: "tpl_5", name: "Last Will and Testament", category: "Estate Planning" },
+  ];
 
   const handleSignDocument = (docId: string) => {
     setSignedDocIds((prev) => [...prev, docId]);
@@ -145,7 +154,7 @@ function DocumentsPage() {
         }
         actions={
           <div className="flex items-center gap-2">
-            {!isClient && <Button variant="outline">Templates</Button>}
+            {!isClient && <Button variant="outline" onClick={() => setIsTemplatesOpen(true)}>Templates</Button>}
             <ToggleGroup
               type="single"
               value={viewMode}
@@ -580,6 +589,44 @@ function DocumentsPage() {
             <Button variant="destructive" onClick={handleDelete}>
               Delete
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Templates Dialog */}
+      <Dialog open={isTemplatesOpen} onOpenChange={setIsTemplatesOpen}>
+        <DialogContent className="sm:max-w-[600px] border-border bg-card/95 backdrop-blur-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <FileSignature className="h-5 w-5 text-primary" /> Firm Templates
+            </DialogTitle>
+            <DialogDescription>
+              Select a template to generate a new document or copy to a case folder.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+            {MOCK_TEMPLATES.map((tpl) => (
+              <div key={tpl.id} className="flex items-center justify-between p-4 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-md text-primary">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground">{tpl.name}</h4>
+                    <p className="text-xs text-muted-foreground">{tpl.category}</p>
+                  </div>
+                </div>
+                <Button size="sm" variant="secondary" onClick={() => {
+                  toast.success(`Template '${tpl.name}' used successfully.`);
+                  setIsTemplatesOpen(false);
+                }}>
+                  Use Template
+                </Button>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsTemplatesOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

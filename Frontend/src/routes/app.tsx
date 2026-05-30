@@ -176,7 +176,7 @@ const NAV: NavItem[] = [
     roles: ["admin", "lawyer", "paralegal"],
     group: "System",
   },
-  { to: "/app/settings", label: "Settings", icon: Settings, roles: ["admin"], group: "System" },
+  { to: "/app/settings", label: "Settings", icon: Settings, roles: ["admin", "lawyer", "paralegal", "client"], group: "System" },
 ];
 
 function AppLayout() {
@@ -219,7 +219,7 @@ function AppLayout() {
   return (
     <div className="flex min-h-screen w-full bg-background">
       {/* Sidebar */}
-      <aside className="hidden w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm lg:flex">
+      <aside className="hidden w-64 h-screen sticky top-0 flex-shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm lg:flex overflow-hidden">
         <div className="flex h-16 items-center gap-3 px-6">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-foreground shadow-sm">
             <Scale className="h-5 w-5" />

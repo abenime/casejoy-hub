@@ -623,16 +623,12 @@ function CasesPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-secondary/60 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="px-5 py-3 text-left font-medium">Case number</th>
                   <th className="px-5 py-3 text-left font-medium">Title</th>
-                  {!isClient && <th className="px-5 py-3 text-left font-medium">Client</th>}
-                  <th className="px-5 py-3 text-left font-medium">Practice</th>
-                  <th className="px-5 py-3 text-left font-medium">Stage</th>
-                  <th className="px-5 py-3 text-left font-medium">Lead</th>
                   <th className="px-5 py-3 text-left font-medium">
                     <button
                       className="inline-flex items-center gap-1 hover:text-foreground"
@@ -649,21 +645,13 @@ function CasesPage() {
                       Status <ArrowUpDown className="h-3.5 w-3.5" />
                     </button>
                   </th>
-                  <th className="px-5 py-3 text-left font-medium">
-                    <button
-                      className="inline-flex items-center gap-1 hover:text-foreground"
-                      onClick={() => setSortKey("priority")}
-                    >
-                      Priority <ArrowUpDown className="h-3.5 w-3.5" />
-                    </button>
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {loading && (
                   <tr>
                     <td
-                      colSpan={isClient ? 8 : 9}
+                      colSpan={4}
                       className="px-5 py-10 text-center text-muted-foreground"
                     >
                       Loading…
@@ -673,7 +661,7 @@ function CasesPage() {
 
                 {!loading && filteredCases.length === 0 && (
                   <tr>
-                    <td colSpan={isClient ? 8 : 9} className="px-5 py-12 text-center">
+                    <td colSpan={4} className="px-5 py-12 text-center">
                       <div className="mx-auto max-w-sm space-y-2">
                         <p className="font-medium text-foreground">
                           No matters match the current filters.
@@ -713,25 +701,12 @@ function CasesPage() {
                       <td className="px-5 py-3.5 font-medium text-foreground">
                         <span className="truncate">{item.title}</span>
                       </td>
-                      {!isClient && <td className="px-5 py-3.5 text-foreground">{item.client}</td>}
-                      <td className="px-5 py-3.5 text-muted-foreground">{item.practice}</td>
-                      <td className="px-5 py-3.5">
-                        <Badge variant="outline" className={stageColor(item.stage)}>
-                          {item.stage}
-                        </Badge>
-                      </td>
-                      <td className="px-5 py-3.5 text-muted-foreground">{item.lead}</td>
                       <td className="px-5 py-3.5 text-foreground">
                         {formatDate(item.nextDeadline)}
                       </td>
                       <td className="px-5 py-3.5">
                         <Badge variant="outline" className={caseStatusColor(item.status)}>
                           {caseStatusLabel(item.status)}
-                        </Badge>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <Badge variant="outline" className={statusColor(item.priority)}>
-                          {item.priority}
                         </Badge>
                       </td>
                     </tr>

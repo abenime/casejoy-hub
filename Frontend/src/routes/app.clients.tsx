@@ -329,7 +329,7 @@ function ClientsPage() {
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
                       id="phone"
-                      placeholder="e.g. +1 (415) 555-0100"
+                      placeholder="e.g. +251987654321"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     />

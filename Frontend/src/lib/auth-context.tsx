@@ -65,6 +65,7 @@ interface AuthContextValue extends AuthState {
   isFirm: boolean;
   isClient: boolean;
   loading: boolean;
+  refreshSession: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -136,6 +137,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return allowedRoles.includes(state.user.role);
   };
 
+  const refreshSession = () => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+      if (raw) {
+        const parsedUser = JSON.parse(raw);
+        if (parsedUser && parsedUser.role) {
+          dispatch({ type: "RESTORE_SESSION", payload: parsedUser });
+        }
+      }
+    } catch (e) {
+      console.error("Failed to refresh session:", e);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -146,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isFirm: !!state.user && state.user.role !== "client",
         isClient: state.user?.role === "client",
         loading: state.status === "idle" || state.status === "loading",
+        refreshSession,
       }}
     >
       {children}

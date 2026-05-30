@@ -170,6 +170,53 @@ export const api = {
     return updatedUser;
   },
 
+  async updateUserProfile(userId: string, name: string, email: string, phone: string): Promise<User> {
+    const users = getLocalUsers();
+    let updatedUser: User | null = null;
+
+    const updated = users.map((u) => {
+      if (u.id === userId) {
+        updatedUser = {
+          ...u,
+          name,
+          email,
+          phone,
+          avatar: name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2) || u.avatar,
+        };
+        return updatedUser;
+      }
+      return u;
+    });
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    saveLocalUsers(updated);
+
+    // Sync session if updating current logged in user
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("lawfirm.auth.user");
+      if (stored) {
+        try {
+          const currentSession = JSON.parse(stored) as User;
+          if (currentSession.id === userId) {
+            localStorage.setItem("lawfirm.auth.user", JSON.stringify(updatedUser));
+          }
+        } catch {
+          // Ignore
+        }
+      }
+    }
+
+    return delay(updatedUser, 120);
+  },
+
   // Users
   getUsers: () => fetchApi<User[]>("/users"),
   getStaff: async () => {
