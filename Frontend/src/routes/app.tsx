@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, useNavigate, Link, useRouterState } from "@tanstack/react-router";
+import * as React from "react";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   LayoutDashboard,
