@@ -1,4 +1,10 @@
-import { createFileRoute, Outlet, useNavigate, Link, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  useNavigate,
+  Link,
+  useRouterState,
+} from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import {
   LayoutDashboard,
@@ -22,11 +28,63 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
+export function RBACGuard({
+  allowedRoles,
+  children,
+  fallback = null,
+}: {
+  allowedRoles: string[];
+  children: ReactNode;
+  fallback?: ReactNode;
+}) {
+  const { hasRole, status } = useAuth();
+  if (status === "loading") return null;
+  if (!hasRole(allowedRoles)) return <>{fallback}</>;
+  return <>{children}</>;
+}
+
+class AppErrorBoundary extends React.Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("AppErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center p-6 text-center h-full">
+          <div className="text-destructive mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          </div>
+          <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
+          <p className="text-muted-foreground mb-4 max-w-md">An unexpected error occurred in this module. The rest of the application should still be functioning.</p>
+          <Button onClick={() => this.setState({ hasError: false, error: null })}>Try again</Button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export const Route = createFileRoute("/app")({
   component: AppLayout,
 });
 
-type NavItem = { to: string; label: string; icon: typeof Briefcase; roles: string[] };
+type NavItem = {
+  to: string;
+  label: string;
+  icon: typeof Briefcase;
+  roles: string[];
+  group: string;
+};
 
 const NAV: NavItem[] = [
   {
@@ -34,48 +92,79 @@ const NAV: NavItem[] = [
     label: "Dashboard",
     icon: LayoutDashboard,
     roles: ["admin", "lawyer", "paralegal", "client"],
+    group: "Overview",
   },
   {
     to: "/app/cases",
     label: "Cases",
     icon: Briefcase,
     roles: ["admin", "lawyer", "paralegal", "client"],
+    group: "Overview",
   },
-  { to: "/app/clients", label: "Clients", icon: Users, roles: ["admin", "lawyer", "paralegal"] },
+  {
+    to: "/app/clients",
+    label: "Clients",
+    icon: Users,
+    roles: ["admin", "lawyer", "paralegal"],
+    group: "Overview",
+  },
   {
     to: "/app/calendar",
     label: "Calendar",
     icon: Calendar,
     roles: ["admin", "lawyer", "paralegal", "client"],
+    group: "Overview",
   },
   {
     to: "/app/documents",
     label: "Documents",
     icon: FileText,
     roles: ["admin", "lawyer", "paralegal", "client"],
+    group: "Practice",
   },
   {
     to: "/app/messages",
     label: "Messages",
     icon: MessagesSquare,
     roles: ["admin", "lawyer", "paralegal", "client"],
+    group: "Practice",
   },
-  { to: "/app/billing", label: "Billing", icon: Receipt, roles: ["admin", "lawyer", "client"] },
-  { to: "/app/analytics", label: "Analytics", icon: BarChart3, roles: ["admin", "lawyer"] },
-  { to: "/app/ai", label: "AI Assistant", icon: Sparkles, roles: ["admin", "lawyer", "paralegal"] },
-  { to: "/app/settings", label: "Settings", icon: Settings, roles: ["admin"] },
+  {
+    to: "/app/billing",
+    label: "Billing",
+    icon: Receipt,
+    roles: ["admin", "lawyer", "client"],
+    group: "Practice",
+  },
+  {
+    to: "/app/analytics",
+    label: "Analytics",
+    icon: BarChart3,
+    roles: ["admin", "lawyer"],
+    group: "Practice",
+  },
+  {
+    to: "/app/ai",
+    label: "AI Assistant",
+    icon: Sparkles,
+    roles: ["admin", "lawyer", "paralegal"],
+    group: "System",
+  },
+  { to: "/app/settings", label: "Settings", icon: Settings, roles: ["admin"], group: "System" },
 ];
 
 function AppLayout() {
-  const { user, loading, logout, isClient } = useAuth();
+  const { user, status, logout, isClient } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/login" });
-  }, [user, loading, navigate]);
+    if (status === "unauthenticated" || (status !== "loading" && !user)) {
+      navigate({ to: "/login" });
+    }
+  }, [user, status, navigate]);
 
-  if (loading || !user) {
+  if (status === "loading" || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -85,53 +174,72 @@ function AppLayout() {
 
   const items = NAV.filter((i) => i.roles.includes(user.role));
 
+  const groupedItems = items.reduce(
+    (acc, item) => {
+      if (!acc[item.group]) acc[item.group] = [];
+      acc[item.group].push(item);
+      return acc;
+    },
+    {} as Record<string, typeof items>,
+  );
+
   return (
     <div className="flex min-h-screen w-full bg-background">
       {/* Sidebar */}
-      <aside className="hidden w-60 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
-        <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-accent text-accent-foreground">
-            <Scale className="h-4 w-4" />
+      <aside className="hidden w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm lg:flex">
+        <div className="flex h-16 items-center gap-3 px-6">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-foreground shadow-sm">
+            <Scale className="h-5 w-5" />
           </div>
-          <div className="leading-tight">
-            <p className="text-sm font-semibold tracking-wide">VANCE &amp; HALE</p>
-            <p className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50">
-              {isClient ? "Client Portal" : "Firm Workspace"}
-            </p>
+          <div className="flex flex-col">
+            <span className="text-base font-bold tracking-tight text-sidebar-foreground">
+              Vance & Hale
+            </span>
+            <span className="text-[10px] font-medium uppercase tracking-widest text-sidebar-foreground/50">
+              {isClient ? "Client Portal" : "Legal Workspace"}
+            </span>
           </div>
         </div>
 
-        <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 py-4">
-          {items.map((item) => {
-            const Icon = item.icon;
-            const active = item.to === "/app" ? pathname === "/app" : pathname.startsWith(item.to);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={[
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                  active
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground/75 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
-                ].join(" ")}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+        <nav className="flex-1 space-y-6 px-4 py-6">
+          {Object.entries(groupedItems).map(([group, groupItems]) => (
+            <div key={group} className="space-y-1">
+              <h4 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/40">
+                {group}
+              </h4>
+              {groupItems.map((item) => {
+                const Icon = item.icon;
+                const active =
+                  item.to === "/app" ? pathname === "/app" : pathname.startsWith(item.to);
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={[
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                      active
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
+                    ].join(" ")}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
-        <div className="border-t border-sidebar-border p-3">
-          <div className="flex items-center gap-3 rounded-md px-2 py-2">
-            <Avatar className="h-9 w-9">
-              <AvatarFallback className="bg-accent text-accent-foreground text-xs font-semibold">
+        <div className="border-t border-sidebar-border p-4">
+          <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+            <Avatar className="h-10 w-10 border border-sidebar-border shadow-sm">
+              <AvatarFallback className="bg-accent text-xs font-semibold text-accent-foreground">
                 {user.avatar}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{user.name}</p>
+              <p className="truncate text-sm font-semibold text-sidebar-foreground">{user.name}</p>
               <p className="truncate text-xs text-sidebar-foreground/60">{user.title}</p>
             </div>
             <button
@@ -139,8 +247,9 @@ function AppLayout() {
                 logout();
                 navigate({ to: "/login" });
               }}
-              className="rounded-md p-1.5 text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              className="rounded-md p-2 text-sidebar-foreground/60 transition-colors hover:bg-destructive hover:text-destructive-foreground"
               aria-label="Sign out"
+              title="Sign out"
             >
               <LogOut className="h-4 w-4" />
             </button>
@@ -177,7 +286,9 @@ function AppLayout() {
         </header>
 
         <main className="flex-1 overflow-y-auto">
-          <Outlet />
+          <AppErrorBoundary>
+            <Outlet />
+          </AppErrorBoundary>
         </main>
       </div>
     </div>
