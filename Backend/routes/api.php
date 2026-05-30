@@ -27,6 +27,43 @@ Route::post('/login', function (Request $request) {
     return response()->json($user);
 });
 
+// Signup
+Route::post('/signup', function (Request $request) {
+    $data = $request->only(['name', 'email', 'password', 'phone']);
+    $exists = DB::table('users')->where('email', $data['email'])->exists();
+    if ($exists) {
+        return response()->json(['error' => 'Email already registered'], 400);
+    }
+
+    $words = explode(' ', $data['name']);
+    $initials = '';
+    foreach ($words as $word) {
+        if (!empty($word)) {
+            $initials .= strtoupper(substr($word, 0, 1));
+        }
+    }
+    $initials = substr($initials, 0, 2);
+    if (empty($initials)) {
+        $initials = 'U';
+    }
+
+    $newUser = [
+        'id' => 'u-' . time(),
+        'email' => $data['email'],
+        'password' => $data['password'],
+        'name' => $data['name'],
+        'role' => 'client',
+        'title' => 'Client',
+        'avatar' => $initials,
+        'caseIds' => json_encode([]),
+        'phone' => $data['phone'] ?? null,
+    ];
+
+    DB::table('users')->insert($newUser);
+    $newUser['caseIds'] = [];
+    return response()->json($newUser, 201);
+});
+
 // Users
 Route::get('/users', function () {
     $users = DB::table('users')->get();
@@ -38,6 +75,31 @@ Route::get('/users', function () {
         }
     }
     return response()->json($users);
+});
+
+Route::put('/users/{id}/role', function (Request $request, $id) {
+    $newRole = $request->input('role');
+    $titleMap = [
+        'admin' => 'Managing Partner',
+        'lawyer' => 'Attorney',
+        'paralegal' => 'Paralegal',
+        'client' => 'Client',
+    ];
+
+    $title = $titleMap[$newRole] ?? 'Client';
+
+    DB::table('users')->where('id', $id)->update([
+        'role' => $newRole,
+        'title' => $title
+    ]);
+
+    $user = DB::table('users')->where('id', $id)->first();
+    if ($user && isset($user->caseIds)) {
+        $user->caseIds = json_decode($user->caseIds);
+    } else if ($user) {
+        $user->caseIds = [];
+    }
+    return response()->json($user);
 });
 
 // Cases
