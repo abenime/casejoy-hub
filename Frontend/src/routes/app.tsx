@@ -5,7 +5,7 @@ import {
   Link,
   useRouterState,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import React, { useEffect, type ReactNode } from "react";
 import {
   LayoutDashboard,
   Briefcase,

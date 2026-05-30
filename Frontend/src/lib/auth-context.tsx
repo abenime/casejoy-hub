@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, type ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useReducer, type ReactNode } from "react";
 import { api, type User } from "@/lib/api";
 
 type AuthStatus = "idle" | "loading" | "authenticated" | "unauthenticated";
