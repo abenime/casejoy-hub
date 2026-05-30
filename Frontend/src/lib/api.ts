@@ -31,8 +31,11 @@ export interface Case {
   clientId: string | null;
   practice: string;
   stage: string;
-  status: "active" | "archived";
+  status: "active" | "pending" | "closed" | "archived";
   lead: string;
+  court?: string;
+  judge?: string;
+  hearingDate?: string | null;
   openedAt: string;
   nextDeadline: string | null;
   billable: number;

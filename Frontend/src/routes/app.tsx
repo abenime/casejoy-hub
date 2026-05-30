@@ -1,5 +1,11 @@
-import { createFileRoute, Outlet, useNavigate, Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import {
+  createFileRoute,
+  Outlet,
+  useNavigate,
+  Link,
+  useRouterState,
+} from "@tanstack/react-router";
+import React, { useEffect, type ReactNode } from "react";
 import {
   LayoutDashboard,
   Briefcase,
@@ -23,6 +29,52 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+export function RBACGuard({
+  allowedRoles,
+  children,
+  fallback = null,
+}: {
+  allowedRoles: string[];
+  children: ReactNode;
+  fallback?: ReactNode;
+}) {
+  const { hasRole, status } = useAuth();
+  if (status === "loading") return null;
+  if (!hasRole(allowedRoles)) return <>{fallback}</>;
+  return <>{children}</>;
+}
+
+class AppErrorBoundary extends React.Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("AppErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center p-6 text-center h-full">
+          <div className="text-destructive mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          </div>
+          <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
+          <p className="text-muted-foreground mb-4 max-w-md">An unexpected error occurred in this module. The rest of the application should still be functioning.</p>
+          <Button onClick={() => this.setState({ hasError: false, error: null })}>Try again</Button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 import {
   DropdownMenu,
@@ -113,7 +165,7 @@ const NAV: NavItem[] = [
 ];
 
 function AppLayout() {
-  const { user, loading, logout, isClient } = useAuth();
+  const { user, status, logout, isClient } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -122,10 +174,12 @@ function AppLayout() {
   }, [user?.id]);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/login" });
-  }, [user, loading, navigate]);
+    if (status === "unauthenticated" || (status !== "loading" && !user)) {
+      navigate({ to: "/login" });
+    }
+  }, [user, status, navigate]);
 
-  if (loading || !user) {
+  if (status === "loading" || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -294,7 +348,9 @@ function AppLayout() {
         </header>
 
         <main className="flex-1 overflow-y-auto">
-          <Outlet />
+          <AppErrorBoundary>
+            <Outlet />
+          </AppErrorBoundary>
         </main>
       </div>
     </div>
