@@ -521,7 +521,7 @@ function ClientDashboard() {
                     <div className="grid gap-4 py-4">
                       <div className="grid gap-2">
                         <Label>Regarding Matter</Label>
-                        <Select value={schedCase || (cases?.[0]?.id ?? "")} onValueChange={setSchedCase}>
+                        <Select value={schedCase || undefined} onValueChange={setSchedCase}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a case" />
                           </SelectTrigger>
@@ -571,7 +571,7 @@ function ClientDashboard() {
                     <DialogFooter>
                       <Button variant="outline" onClick={() => setIsScheduleOpen(false)}>Cancel</Button>
                       <Button 
-                        disabled={!schedDate}
+                        disabled={!schedDate || !schedCase}
                         onClick={() => {
                           const newEvent = {
                             id: `local-evt-${Date.now()}`,
@@ -579,13 +579,14 @@ function ClientDashboard() {
                             time: schedTime === "morning" ? "09:00" : "14:00",
                             title: `Client requested ${schedType.replace('_', ' ')}`,
                             type: "meeting",
-                            caseId: schedCase || (cases?.[0]?.id ?? "c1"),
+                            caseId: schedCase,
                             reminder: "1d",
                             notes: "Requested via Client Portal"
                           };
                           setLocalEvents(prev => [...prev, newEvent]);
                           setIsScheduleOpen(false);
                           setSchedDate("");
+                          setSchedCase("");
                         }}
                       >
                         Send Request
