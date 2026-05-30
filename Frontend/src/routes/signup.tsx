@@ -2,49 +2,57 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Scale, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/login")({
-  component: LoginPage,
+export const Route = createFileRoute("/signup")({
+  component: SignupPage,
 });
 
-const DEMO_ACCOUNTS = [
-  { label: "Managing Partner", email: "admin@firm.com", password: "admin" },
-  { label: "Senior Associate", email: "lawyer@firm.com", password: "lawyer" },
-  { label: "Paralegal", email: "paralegal@firm.com", password: "paralegal" },
-  { label: "Client Portal", email: "client@firm.com", password: "client" },
-];
-
-function LoginPage() {
+function SignupPage() {
   const { user, login, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("admin@firm.com");
-  const [password, setPassword] = useState("admin");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && user) navigate({ to: "/app" });
+    if (!authLoading && user) {
+      navigate({ to: "/app" });
+    }
   }, [user, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
-    const result = await login(email, password);
-    setSubmitting(false);
-    if (result) {
-      toast.success(`Welcome back, ${result.name.split(" ")[0]}`);
-      navigate({ to: "/app" });
-    } else {
-      toast.error("Invalid credentials");
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
     }
-  };
 
-  const quickFill = (acc: (typeof DEMO_ACCOUNTS)[number]) => {
-    setEmail(acc.email);
-    setPassword(acc.password);
+    setSubmitting(true);
+    try {
+      // Create user account (defaults to 'client' role)
+      await api.signUp(name, email, password, phone);
+
+      // Automatically log them in
+      const loggedIn = await login(email, password);
+      if (loggedIn) {
+        toast.success("Account created successfully!");
+        navigate({ to: "/app" });
+      } else {
+        toast.error("Failed to authenticate after signup");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Signup failed");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -62,11 +70,11 @@ function LoginPage() {
         </div>
         <div className="space-y-4">
           <h1 className="text-4xl font-semibold leading-tight tracking-tight">
-            One platform for your firm and your clients.
+            Join the Client Portal
           </h1>
           <p className="max-w-md text-sm text-sidebar-foreground/70">
-            Cases, billing, documents, and secure client communication — unified in a workspace
-            built for modern legal teams.
+            Create an account to securely access documents, track invoices, and message your legal
+            representation.
           </p>
         </div>
         <p className="text-xs text-sidebar-foreground/50">
@@ -78,22 +86,44 @@ function LoginPage() {
       <div className="flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-sm space-y-8">
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold tracking-tight">Sign in</h2>
-            <p className="text-sm text-muted-foreground">
-              Access your firm workspace or client portal.
-            </p>
+            <h2 className="text-2xl font-semibold tracking-tight">Create an account</h2>
+            <p className="text-sm text-muted-foreground">Register for your client account.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Work email</Label>
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="John Doe"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email address</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                placeholder="name@example.com"
                 autoComplete="email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+                placeholder="+1 (555) 000-0000"
+                autoComplete="tel"
               />
             </div>
             <div className="space-y-2">
@@ -104,43 +134,35 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                autoComplete="current-password"
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                autoComplete="new-password"
               />
             </div>
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign in
+              Sign up
             </Button>
           </form>
 
           <div className="text-center text-sm">
-            <span className="text-muted-foreground">Don't have an account? </span>
+            <span className="text-muted-foreground">Already have an account? </span>
             <button
               type="button"
               className="font-semibold text-primary hover:underline bg-transparent border-none p-0 cursor-pointer"
-              onClick={() => navigate({ to: "/signup" })}
+              onClick={() => navigate({ to: "/login" })}
             >
-              Sign up
+              Sign in
             </button>
-          </div>
-
-          <div className="space-y-3">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Demo accounts
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {DEMO_ACCOUNTS.map((acc) => (
-                <button
-                  key={acc.email}
-                  type="button"
-                  onClick={() => quickFill(acc)}
-                  className="rounded-md border border-border bg-card p-2 text-left text-xs transition-colors hover:border-accent hover:bg-accent/5"
-                >
-                  <p className="font-medium text-foreground">{acc.label}</p>
-                  <p className="truncate text-muted-foreground">{acc.email}</p>
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </div>

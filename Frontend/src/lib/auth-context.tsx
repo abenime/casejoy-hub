@@ -64,6 +64,7 @@ interface AuthContextValue extends AuthState {
   hasRole: (allowedRoles: string[]) => boolean;
   isFirm: boolean;
   isClient: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -144,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hasRole,
         isFirm: !!state.user && state.user.role !== "client",
         isClient: state.user?.role === "client",
+        loading: state.status === "idle" || state.status === "loading",
       }}
     >
       {children}

@@ -10,6 +10,7 @@ export interface User {
   title: string;
   avatar: string;
   caseIds?: string[];
+  phone?: string;
 }
 
 export interface Case {
@@ -125,6 +126,37 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
+  },
+
+  async signUp(name: string, email: string, password: string, phone?: string): Promise<User> {
+    return fetchApi<User>("/signup", {
+      method: "POST",
+      body: JSON.stringify({ name, email, password, phone }),
+    });
+  },
+
+  async updateUserRole(userId: string, newRole: Role): Promise<User> {
+    const updatedUser = await fetchApi<User>(`/users/${userId}/role`, {
+      method: "PUT",
+      body: JSON.stringify({ role: newRole }),
+    });
+
+    // Sync session if updating current logged in user
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("lawfirm.auth.user");
+      if (stored) {
+        try {
+          const currentSession = JSON.parse(stored) as User;
+          if (currentSession.id === userId) {
+            localStorage.setItem("lawfirm.auth.user", JSON.stringify(updatedUser));
+          }
+        } catch {
+          // Ignore
+        }
+      }
+    }
+
+    return updatedUser;
   },
 
   // Users

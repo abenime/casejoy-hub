@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useApi } from "@/lib/use-api";
-import { api, type User } from "@/lib/api";
+import { api, type User, type Role } from "@/lib/api";
 import { PageHeader } from "@/components/ui-shared";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,7 @@ import * as z from "zod";
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Dropdown } from "@/components/ui/dropdown";
+import { toast } from "sonner";
 
 // --- Form State Persistence & Recovery Hook ---
 function useFormDraft<T>(key: string, defaultValues: T) {
@@ -240,13 +241,19 @@ function FirmDetailsTab() {
 }
 
 function UserManagementTab() {
-  const { data: staff } = useApi(() => api.getStaff(), []);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { data: allUsers } = useApi(() => api.getUsers(), [refreshKey]);
   const { logAction } = useAuditLog();
 
-  const handleRoleChange = (userId: string, newRole: string) => {
-    logAction("ROLE_UPDATE", { targetId: userId, newRole });
-    alert(`Role updated to ${newRole} for user ${userId}`);
-    // Optimistic UI update logic would go here
+  const handleRoleChange = async (userId: string, newRole: Role) => {
+    try {
+      await api.updateUserRole(userId, newRole);
+      logAction("ROLE_UPDATE", { targetId: userId, newRole });
+      toast.success("User role updated successfully!");
+      setRefreshKey((prev) => prev + 1);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update user role");
+    }
   };
 
   const columns: ColumnDef<User>[] = [
@@ -284,12 +291,19 @@ function UserManagementTab() {
       header: "Title",
     },
     {
+      accessorKey: "phone",
+      header: "Phone",
+      cell: ({ row }) => (
+        <span className="text-xs text-muted-foreground">{row.original.phone || "—"}</span>
+      ),
+    },
+    {
       id: "actions",
       cell: ({ row }) => {
         return (
           <Dropdown>
             <Dropdown.Trigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
                 <span className="sr-only">Open menu</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -311,17 +325,34 @@ function UserManagementTab() {
             </Dropdown.Trigger>
             <Dropdown.Content align="end">
               <Dropdown.Label>Actions</Dropdown.Label>
-              <Dropdown.Item onClick={() => handleRoleChange(row.original.id, "admin")}>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "admin")}
+              >
                 Make Admin
               </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleRoleChange(row.original.id, "lawyer")}>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "lawyer")}
+              >
                 Make Lawyer
               </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleRoleChange(row.original.id, "paralegal")}>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "paralegal")}
+              >
                 Make Paralegal
               </Dropdown.Item>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "client")}
+              >
+                Make Client
+              </Dropdown.Item>
               <Dropdown.Separator />
-              <Dropdown.Item className="text-destructive">Revoke Access</Dropdown.Item>
+              <Dropdown.Item className="text-destructive cursor-pointer">
+                Revoke Access
+              </Dropdown.Item>
             </Dropdown.Content>
           </Dropdown>
         );
@@ -335,13 +366,13 @@ function UserManagementTab() {
         <div>
           <h2 className="text-lg font-semibold text-foreground">User Management</h2>
           <p className="text-sm text-muted-foreground">
-            Manage roles and access for the firm's staff.
+            Manage roles and access for the firm's staff and registered clients.
           </p>
         </div>
         <Button>Invite member</Button>
       </div>
 
-      {staff && <DataTable columns={columns} data={staff} searchKey="name" />}
+      {allUsers && <DataTable columns={columns} data={allUsers} searchKey="name" />}
     </div>
   );
 }
