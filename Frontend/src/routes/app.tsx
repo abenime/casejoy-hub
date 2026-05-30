@@ -195,7 +195,7 @@ function AppLayout() {
     }
   }, [user, status, navigate]);
 
-  const unreadCount = notifications ? notifications.filter(n => !n.isRead && !readNotificationIds.has(n.id)).length : 0;
+  const unreadCount = notifications ? notifications.filter((n: any) => !n.isRead && !readNotificationIds.has(n.id)).length : 0;
 
   if (status === "loading" || !user) {
     return (
@@ -310,8 +310,8 @@ function AppLayout() {
             <DropdownMenu onOpenChange={(open) => {
               if (open && unreadCount > 0) {
                 const unreadIds = notifications!
-                  .filter(n => !n.isRead && !readNotificationIds.has(n.id))
-                  .map(n => n.id);
+                  .filter((n: any) => !n.isRead && !readNotificationIds.has(n.id))
+                  .map((n: any) => n.id);
                 setReadNotificationIds(prev => new Set([...prev, ...unreadIds]));
               }
             }}>
@@ -339,7 +339,7 @@ function AppLayout() {
                     No notifications
                   </div>
                 ) : (
-                  notifications.map((n) => {
+                  notifications.map((n: any) => {
                     const isUnread = !n.isRead && !readNotificationIds.has(n.id);
                     return (
                       <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1 p-3 cursor-pointer">
