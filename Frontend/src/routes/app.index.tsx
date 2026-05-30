@@ -155,7 +155,7 @@ function FirmDashboard({ user }: { user: { name: string } }) {
               Team productivity (billable hrs)
             </h2>
             <div className="mt-4 space-y-4">
-              {(analytics?.lawyerProductivity ?? []).map((l) => {
+              {(analytics?.lawyerProductivity ?? []).map((l: any) => {
                 const pct = Math.min(100, (l.billable / l.target) * 100);
                 const over = l.billable >= l.target;
                 return (
@@ -181,7 +181,7 @@ function FirmDashboard({ user }: { user: { name: string } }) {
           <div className="rounded-lg border border-border bg-card p-5">
             <h2 className="text-sm font-semibold text-foreground">Practice area mix</h2>
             <div className="mt-4 space-y-2.5">
-              {(analytics?.practiceBreakdown ?? []).map((p, i) => {
+              {(analytics?.practiceBreakdown ?? []).map((p: any, i: number) => {
                 const colors = [
                   "bg-chart-1",
                   "bg-accent",

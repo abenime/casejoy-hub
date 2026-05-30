@@ -94,7 +94,7 @@ function AnalyticsPage() {
                     innerRadius={55}
                     outerRadius={90}
                   >
-                    {data.practiceBreakdown.map((_, i) => (
+                    {data.practiceBreakdown.map((_: any, i: number) => (
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>

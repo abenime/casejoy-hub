@@ -1,14 +1,4 @@
-// Mock API — reads from JSON files. Simulates async to mimic real fetches.
-import usersData from "@/data/users.json";
-import casesData from "@/data/cases.json";
-import clientsData from "@/data/clients.json";
-import tasksData from "@/data/tasks.json";
-import eventsData from "@/data/events.json";
-import documentsData from "@/data/documents.json";
-import invoicesData from "@/data/invoices.json";
-import messagesData from "@/data/messages.json";
-import analyticsData from "@/data/analytics.json";
-import notificationsData from "@/data/notifications.json";
+// Real API wrapper.
 
 export type Role = "admin" | "lawyer" | "paralegal" | "client";
 
@@ -93,26 +83,29 @@ export interface Document {
 
 export interface Invoice {
   id: string;
-  clientId: string;
+  number: string;
+  clientId: string | null;
+  client: string;
   caseId: string;
   amount: number;
   status: string;
-  date: string;
-  dueDate: string;
+  issued: string;
+  due: string;
 }
 
 export interface Message {
   id: string;
+  caseId: string;
   from: string;
+  fromName: string;
   to: string;
-  subject: string;
   body: string;
-  date: string;
+  at: string;
   read: boolean;
 }
 
 export interface Analytics {
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 const fetchApi = async <T>(url: string, options?: RequestInit): Promise<T> => {
@@ -171,33 +164,10 @@ export const api = {
   },
 
   async updateUserProfile(userId: string, name: string, email: string, phone: string): Promise<User> {
-    const users = getLocalUsers();
-    let updatedUser: User | null = null;
-
-    const updated = users.map((u) => {
-      if (u.id === userId) {
-        updatedUser = {
-          ...u,
-          name,
-          email,
-          phone,
-          avatar: name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2) || u.avatar,
-        };
-        return updatedUser;
-      }
-      return u;
+    const updatedUser = await fetchApi<User>(`/users/${userId}`, {
+      method: "PUT",
+      body: JSON.stringify({ name, email, phone }),
     });
-
-    if (!updatedUser) {
-      throw new Error("User not found");
-    }
-
-    saveLocalUsers(updated);
 
     // Sync session if updating current logged in user
     if (typeof window !== "undefined") {
@@ -214,7 +184,7 @@ export const api = {
       }
     }
 
-    return delay(updatedUser, 120);
+    return updatedUser;
   },
 
   // Users
@@ -290,8 +260,7 @@ export const api = {
 
   // Notifications
   async getNotifications(user: User) {
-    const all = notificationsData;
-    // Note: This relies on local mock data until the backend route is ready
-    return delay(all.filter((n) => n.userId === user.id));
+    const all = await fetchApi<any[]>("/notifications");
+    return all.filter((n) => n.userId === user.id);
   },
 };

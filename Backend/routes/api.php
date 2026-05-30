@@ -102,6 +102,19 @@ Route::put('/users/{id}/role', function (Request $request, $id) {
     return response()->json($user);
 });
 
+Route::put('/users/{id}', function (Request $request, $id) {
+    $data = $request->only(['name', 'email', 'phone']);
+    DB::table('users')->where('id', $id)->update($data);
+
+    $user = DB::table('users')->where('id', $id)->first();
+    if ($user && isset($user->caseIds)) {
+        $user->caseIds = json_decode($user->caseIds);
+    } else if ($user) {
+        $user->caseIds = [];
+    }
+    return response()->json($user);
+});
+
 // Cases
 Route::get('/cases', function () {
     return response()->json(DB::table('case_models')->get());
@@ -178,4 +191,10 @@ Route::get('/messages', function () {
 Route::get('/analytics', function () {
     $frontendDataPath = base_path('../Frontend/src/data');
     return response()->json(json_decode(file_get_contents("$frontendDataPath/analytics.json")));
+});
+
+// Notifications
+Route::get('/notifications', function () {
+    $frontendDataPath = base_path('../Frontend/src/data');
+    return response()->json(json_decode(file_get_contents("$frontendDataPath/notifications.json")));
 });

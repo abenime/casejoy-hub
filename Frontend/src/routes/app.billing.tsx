@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Download, CreditCard, Clock, FileText, CheckCircle2, Settings, Upload, Phone } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApi } from "@/lib/use-api";
-import { api } from "@/lib/api";
+import { api, type Invoice } from "@/lib/api";
 import { PageHeader, StatCard, statusColor } from "@/components/ui-shared";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,17 +33,7 @@ export const Route = createFileRoute("/app/billing")({
   component: BillingPage,
 });
 
-type InvoiceItem = {
-  id: string;
-  number: string;
-  caseId: string;
-  clientId: string | null;
-  client: string;
-  amount: number;
-  issued: string;
-  due: string;
-  status: string;
-};
+// Removed local InvoiceItem
 
 // Mock time entries
 const MOCK_TIME_ENTRIES = [
@@ -180,7 +170,7 @@ function BillingPage() {
 
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [isTimeModalOpen, setIsTimeModalOpen] = useState(false);
-  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceItem | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isPaymentMethodModalOpen, setIsPaymentMethodModalOpen] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(MOCK_PAYMENT_METHODS);
@@ -193,17 +183,17 @@ function BillingPage() {
     transactionRef: "",
   });
 
-  const total = ((invoices as InvoiceItem[]) ?? []).reduce(
-    (s: number, i: InvoiceItem) => s + i.amount,
+  const total = ((invoices as Invoice[]) ?? []).reduce(
+    (s: number, i: Invoice) => s + i.amount,
     0,
   );
-  const paid = ((invoices as InvoiceItem[]) ?? [])
-    .filter((i: InvoiceItem) => i.status === "paid")
-    .reduce((s: number, i: InvoiceItem) => s + i.amount, 0);
+  const paid = ((invoices as Invoice[]) ?? [])
+    .filter((i: Invoice) => i.status === "paid")
+    .reduce((s: number, i: Invoice) => s + i.amount, 0);
   const outstanding = total - paid;
-  const overdue = ((invoices as InvoiceItem[]) ?? [])
-    .filter((i: InvoiceItem) => i.status === "overdue")
-    .reduce((s: number, i: InvoiceItem) => s + i.amount, 0);
+  const overdue = ((invoices as Invoice[]) ?? [])
+    .filter((i: Invoice) => i.status === "overdue")
+    .reduce((s: number, i: Invoice) => s + i.amount, 0);
 
   const handleCreateInvoice = () => {
     toast.success("Draft invoice created successfully.");
@@ -285,7 +275,7 @@ function BillingPage() {
                       </td>
                     </tr>
                   )}
-                  {(invoices ?? []).map((i: InvoiceItem) => (
+                  {(invoices ?? []).map((i: Invoice) => (
                     <tr
                       key={i.id}
                       className="transition-colors hover:bg-secondary/40 cursor-pointer"
