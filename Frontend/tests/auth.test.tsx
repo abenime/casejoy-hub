@@ -39,7 +39,7 @@ describe("AuthContext and RBAC", () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     // Initial State

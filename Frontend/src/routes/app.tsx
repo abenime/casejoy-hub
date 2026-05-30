@@ -1,10 +1,4 @@
-import {
-  createFileRoute,
-  Outlet,
-  useNavigate,
-  Link,
-  useRouterState,
-} from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, Link, useRouterState } from "@tanstack/react-router";
 import React, { useEffect, type ReactNode } from "react";
 import {
   LayoutDashboard,
@@ -43,7 +37,10 @@ export function RBACGuard({
   return <>{children}</>;
 }
 
-class AppErrorBoundary extends React.Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
+class AppErrorBoundary extends React.Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
   constructor(props: { children: ReactNode }) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -62,10 +59,27 @@ class AppErrorBoundary extends React.Component<{ children: ReactNode }, { hasErr
       return (
         <div className="flex flex-col items-center justify-center p-6 text-center h-full">
           <div className="text-destructive mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
           </div>
           <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
-          <p className="text-muted-foreground mb-4 max-w-md">An unexpected error occurred in this module. The rest of the application should still be functioning.</p>
+          <p className="text-muted-foreground mb-4 max-w-md">
+            An unexpected error occurred in this module. The rest of the application should still be
+            functioning.
+          </p>
           <Button onClick={() => this.setState({ hasError: false, error: null })}>Try again</Button>
         </div>
       );
@@ -282,7 +296,7 @@ function AppLayout() {
             <Badge variant="secondary" className="hidden capitalize sm:inline-flex">
               {user.role}
             </Badge>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">

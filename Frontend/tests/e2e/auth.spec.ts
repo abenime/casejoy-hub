@@ -10,7 +10,12 @@ test.describe("End-to-End System Validation", () => {
       route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({ id: "99", name: "Admin User", role: "admin", email: "admin@test.com" }),
+        body: JSON.stringify({
+          id: "99",
+          name: "Admin User",
+          role: "admin",
+          email: "admin@test.com",
+        }),
       });
     });
 
@@ -21,7 +26,7 @@ test.describe("End-to-End System Validation", () => {
 
     // Assertion: Route changed to Dashboard
     await expect(page).toHaveURL(/\/app/);
-    
+
     // Assertion: App Shell layout propagation is visible (Sidebar & Header present)
     await expect(page.locator("aside", { hasText: "Vance & Hale" })).toBeVisible();
 
@@ -30,7 +35,7 @@ test.describe("End-to-End System Validation", () => {
 
     // Assertion: Clean teardown and redirect to login
     await expect(page).toHaveURL(/\/login/);
-    
+
     // Attempting to go back without session
     await page.goBack();
     await expect(page).toHaveURL(/\/login/);
@@ -42,16 +47,21 @@ test.describe("End-to-End System Validation", () => {
       route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({ id: "2", name: "Client User", role: "client", email: "client@test.com" }),
+        body: JSON.stringify({
+          id: "2",
+          name: "Client User",
+          role: "client",
+          email: "client@test.com",
+        }),
       });
     });
-    
+
     // Set localStorage directly or login to seed session
     await page.goto("/login");
     await page.fill('input[type="email"]', "client@test.com");
     await page.fill('input[type="password"]', "password123");
     await page.click('button[type="submit"]');
-    
+
     // Await redirect to dashboard
     await expect(page).toHaveURL(/\/app/);
 
@@ -61,6 +71,8 @@ test.describe("End-to-End System Validation", () => {
     // Assertion: The user is instantly blocked/redirected from the settings view
     // Since settings checks `user.role !== 'admin'`, it renders a 'Forbidden' message
     await expect(page.locator("text=Forbidden")).toBeVisible();
-    await expect(page.locator("text=You do not have permission to access the admin settings")).toBeVisible();
+    await expect(
+      page.locator("text=You do not have permission to access the admin settings"),
+    ).toBeVisible();
   });
 });

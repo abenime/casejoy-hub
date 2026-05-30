@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-  DialogClose
+  DialogClose,
 } from "@/components/ui/dialog";
 
 // Compound component pattern wrapper for Modal exposing Radix primitives
@@ -19,5 +19,5 @@ export const Modal = Object.assign(Dialog, {
   Footer: DialogFooter,
   Title: DialogTitle,
   Description: DialogDescription,
-  Close: DialogClose
+  Close: DialogClose,
 });

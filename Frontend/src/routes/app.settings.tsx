@@ -70,7 +70,7 @@ export const Route = createFileRoute("/app/settings")({
 
 function SettingsPage() {
   const { user } = useAuth();
-  
+
   if (user?.role !== "admin") {
     return (
       <div>
@@ -78,7 +78,9 @@ function SettingsPage() {
         <div className="p-6">
           <div className="rounded-lg border border-border bg-card p-8 text-center">
             <h2 className="text-xl font-bold text-destructive">Forbidden</h2>
-            <p className="mt-2 text-sm text-muted-foreground">You do not have permission to access the admin settings.</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              You do not have permission to access the admin settings.
+            </p>
           </div>
         </div>
       </div>
@@ -99,11 +101,11 @@ function SettingsPage() {
           <TabsContent value="firm">
             <FirmDetailsTab />
           </TabsContent>
-          
+
           <TabsContent value="users">
             <UserManagementTab />
           </TabsContent>
-          
+
           <TabsContent value="permissions">
             <PermissionsMatrixTab />
           </TabsContent>
@@ -120,9 +122,12 @@ function FirmDetailsTab() {
     primaryColor: "#1f2a4d",
     accentColor: "#c89a3c",
   };
-  
-  const { draft, saveDraft, clearDraft } = useFormDraft<FirmDetailsFormValues>("firm-settings-draft", defaultValues);
-  
+
+  const { draft, saveDraft, clearDraft } = useFormDraft<FirmDetailsFormValues>(
+    "firm-settings-draft",
+    defaultValues,
+  );
+
   const form = useForm<FirmDetailsFormValues>({
     resolver: zodResolver(firmDetailsSchema),
     defaultValues,
@@ -151,8 +156,12 @@ function FirmDetailsTab() {
       <p className="mt-1 text-sm text-muted-foreground mb-6">
         Branding visible to clients in the portal.
       </p>
-      
-      <form onSubmit={form.handleSubmit(onSubmit)} onChange={() => saveDraft(form.getValues())} className="space-y-6">
+
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        onChange={() => saveDraft(form.getValues())}
+        className="space-y-6"
+      >
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="firmName">Firm name</Label>
@@ -170,40 +179,58 @@ function FirmDetailsTab() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="primaryColor">Primary color</Label>
-            <Input id="primaryColor" type="color" {...form.register("primaryColor")} className="h-10 px-2" />
+            <Input
+              id="primaryColor"
+              type="color"
+              {...form.register("primaryColor")}
+              className="h-10 px-2"
+            />
             {form.formState.errors.primaryColor && (
-              <p className="text-xs text-destructive">{form.formState.errors.primaryColor.message}</p>
+              <p className="text-xs text-destructive">
+                {form.formState.errors.primaryColor.message}
+              </p>
             )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="accentColor">Accent color</Label>
-            <Input id="accentColor" type="color" {...form.register("accentColor")} className="h-10 px-2" />
+            <Input
+              id="accentColor"
+              type="color"
+              {...form.register("accentColor")}
+              className="h-10 px-2"
+            />
             {form.formState.errors.accentColor && (
-              <p className="text-xs text-destructive">{form.formState.errors.accentColor.message}</p>
+              <p className="text-xs text-destructive">
+                {form.formState.errors.accentColor.message}
+              </p>
             )}
           </div>
         </div>
-        
+
         <div className="border-t border-border pt-6 mt-6">
           <h3 className="text-sm font-semibold mb-4">System Preferences</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Require 2FA</p>
-                <p className="text-xs text-muted-foreground">Force all staff members to use Two-Factor Authentication</p>
+                <p className="text-xs text-muted-foreground">
+                  Force all staff members to use Two-Factor Authentication
+                </p>
               </div>
               <Switch defaultChecked />
             </div>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Data Retention Policy</p>
-                <p className="text-xs text-muted-foreground">Automatically archive cases inactive for 7 years</p>
+                <p className="text-xs text-muted-foreground">
+                  Automatically archive cases inactive for 7 years
+                </p>
               </div>
               <Switch />
             </div>
           </div>
         </div>
-        
+
         <div className="flex justify-end pt-4">
           <Button type="submit">Save changes</Button>
         </div>
@@ -244,7 +271,10 @@ function UserManagementTab() {
       accessorKey: "role",
       header: "Role",
       cell: ({ row }) => (
-        <Badge variant={row.original.role === "admin" ? "default" : "outline"} className="capitalize">
+        <Badge
+          variant={row.original.role === "admin" ? "default" : "outline"}
+          className="capitalize"
+        >
           {row.original.role}
         </Badge>
       ),
@@ -261,14 +291,35 @@ function UserManagementTab() {
             <Dropdown.Trigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-horizontal"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-more-horizontal"
+                >
+                  <circle cx="12" cy="12" r="1" />
+                  <circle cx="19" cy="12" r="1" />
+                  <circle cx="5" cy="12" r="1" />
+                </svg>
               </Button>
             </Dropdown.Trigger>
             <Dropdown.Content align="end">
               <Dropdown.Label>Actions</Dropdown.Label>
-              <Dropdown.Item onClick={() => handleRoleChange(row.original.id, "admin")}>Make Admin</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleRoleChange(row.original.id, "lawyer")}>Make Lawyer</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleRoleChange(row.original.id, "paralegal")}>Make Paralegal</Dropdown.Item>
+              <Dropdown.Item onClick={() => handleRoleChange(row.original.id, "admin")}>
+                Make Admin
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleRoleChange(row.original.id, "lawyer")}>
+                Make Lawyer
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleRoleChange(row.original.id, "paralegal")}>
+                Make Paralegal
+              </Dropdown.Item>
               <Dropdown.Separator />
               <Dropdown.Item className="text-destructive">Revoke Access</Dropdown.Item>
             </Dropdown.Content>
@@ -283,18 +334,14 @@ function UserManagementTab() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-foreground">User Management</h2>
-          <p className="text-sm text-muted-foreground">Manage roles and access for the firm's staff.</p>
+          <p className="text-sm text-muted-foreground">
+            Manage roles and access for the firm's staff.
+          </p>
         </div>
         <Button>Invite member</Button>
       </div>
-      
-      {staff && (
-        <DataTable 
-          columns={columns} 
-          data={staff} 
-          searchKey="name" 
-        />
-      )}
+
+      {staff && <DataTable columns={columns} data={staff} searchKey="name" />}
     </div>
   );
 }
@@ -324,14 +371,19 @@ function PermissionsMatrixTab() {
   return (
     <div className="rounded-lg border border-border bg-card p-6 overflow-x-auto">
       <h2 className="text-lg font-semibold text-foreground mb-1">Roles & Permissions Matrix</h2>
-      <p className="text-sm text-muted-foreground mb-6">Audit and adjust granular permissions across the system roles.</p>
-      
+      <p className="text-sm text-muted-foreground mb-6">
+        Audit and adjust granular permissions across the system roles.
+      </p>
+
       <table className="w-full text-sm text-left">
         <thead className="bg-muted/50 text-muted-foreground">
           <tr>
             <th className="px-4 py-3 font-medium rounded-tl-md">Feature / Capability</th>
             {roles.map((role, i) => (
-              <th key={role} className={`px-4 py-3 font-medium text-center ${i === roles.length - 1 ? 'rounded-tr-md' : ''}`}>
+              <th
+                key={role}
+                className={`px-4 py-3 font-medium text-center ${i === roles.length - 1 ? "rounded-tr-md" : ""}`}
+              >
                 {role}
               </th>
             ))}
@@ -343,9 +395,9 @@ function PermissionsMatrixTab() {
               <td className="px-4 py-3 font-medium">{feature}</td>
               {roles.map((role, index) => (
                 <td key={`${feature}-${role}`} className="px-4 py-3 text-center">
-                  <Checkbox 
-                    defaultChecked={defaultMatrix[feature][index]} 
-                    disabled={role === "Admin"} 
+                  <Checkbox
+                    defaultChecked={defaultMatrix[feature][index]}
+                    disabled={role === "Admin"}
                   />
                 </td>
               ))}

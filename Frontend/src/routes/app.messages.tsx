@@ -34,16 +34,16 @@ function MessagesPage() {
   const threads = useMemo(() => {
     const map = new Map<string, NonNullable<typeof messages>>();
     const allMessages = [...(messages ?? []), ...localMessages];
-    
+
     allMessages.forEach((m) => {
       const arr = map.get(m.caseId) ?? [];
       arr.push(m);
       map.set(m.caseId, arr);
     });
-    
+
     // Sort messages in each thread by date
-    map.forEach(arr => arr.sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime()));
-    
+    map.forEach((arr) => arr.sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime()));
+
     return Array.from(map.entries());
   }, [messages, localMessages]);
 
@@ -82,7 +82,9 @@ function MessagesPage() {
                 <Input placeholder="Type your message..." className="h-20" />
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsNewMessageOpen(false)}>Cancel</Button>
+                <Button variant="outline" onClick={() => setIsNewMessageOpen(false)}>
+                  Cancel
+                </Button>
                 <Button onClick={() => setIsNewMessageOpen(false)}>Send Message</Button>
               </DialogFooter>
             </DialogContent>
@@ -102,8 +104,8 @@ function MessagesPage() {
             {threads.map(([caseId, msgs]) => {
               const last = msgs![msgs!.length - 1];
               const isActive = selected === caseId;
-              const unreadCount = msgs!.filter(m => !m.read && m.from !== user?.id).length;
-              
+              const unreadCount = msgs!.filter((m) => !m.read && m.from !== user?.id).length;
+
               return (
                 <button
                   key={caseId}
@@ -123,14 +125,25 @@ function MessagesPage() {
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <div className="flex justify-between items-center">
-                      <p className={`truncate text-sm font-medium ${unreadCount > 0 ? "text-foreground font-bold" : "text-foreground"}`}>Case {caseId}</p>
+                      <p
+                        className={`truncate text-sm font-medium ${unreadCount > 0 ? "text-foreground font-bold" : "text-foreground"}`}
+                      >
+                        Case {caseId}
+                      </p>
                       {unreadCount > 0 && (
-                        <Badge variant="default" className="h-5 w-5 rounded-full flex items-center justify-center p-0 text-[10px]">
+                        <Badge
+                          variant="default"
+                          className="h-5 w-5 rounded-full flex items-center justify-center p-0 text-[10px]"
+                        >
                           {unreadCount}
                         </Badge>
                       )}
                     </div>
-                    <p className={`truncate text-xs ${unreadCount > 0 ? "text-foreground font-semibold" : "text-muted-foreground"}`}>{last.body}</p>
+                    <p
+                      className={`truncate text-xs ${unreadCount > 0 ? "text-foreground font-semibold" : "text-muted-foreground"}`}
+                    >
+                      {last.body}
+                    </p>
                   </div>
                 </button>
               );
@@ -151,7 +164,9 @@ function MessagesPage() {
                 <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                   <div className="flex flex-col gap-1 max-w-[70%]">
                     {!mine && (
-                      <span className="text-xs font-semibold text-muted-foreground ml-1">{m.fromName}</span>
+                      <span className="text-xs font-semibold text-muted-foreground ml-1">
+                        {m.fromName}
+                      </span>
                     )}
                     <div
                       className={`rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
@@ -162,9 +177,14 @@ function MessagesPage() {
                     >
                       <p>{m.body}</p>
                     </div>
-                    <div className={`flex items-center gap-1 mt-0.5 mx-1 ${mine ? "justify-end" : "justify-start"}`}>
+                    <div
+                      className={`flex items-center gap-1 mt-0.5 mx-1 ${mine ? "justify-end" : "justify-start"}`}
+                    >
                       <span className="text-[10px] text-muted-foreground">
-                        {new Date(m.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(m.at).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </span>
                     </div>
                   </div>
@@ -177,7 +197,7 @@ function MessagesPage() {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!draft.trim() || !selected) return;
-                
+
                 const newMessage = {
                   id: `local-${Date.now()}`,
                   body: draft,
@@ -188,8 +208,8 @@ function MessagesPage() {
                   at: new Date().toISOString(),
                   read: true,
                 };
-                
-                setLocalMessages(prev => [...prev, newMessage]);
+
+                setLocalMessages((prev) => [...prev, newMessage]);
                 setDraft("");
               }}
               className="flex gap-2"
