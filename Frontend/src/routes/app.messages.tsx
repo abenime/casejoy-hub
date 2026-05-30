@@ -116,7 +116,6 @@ function MessagesPage() {
                 />
               </div>
               <DialogFooter>
-<<<<<<< HEAD
                 <Button variant="outline" onClick={() => setIsNewMessageOpen(false)}>Cancel</Button>
                 <Button 
                   disabled={!newSubject.trim() || !newMessageBody.trim()}
@@ -140,12 +139,6 @@ function MessagesPage() {
                 >
                   Send Message
                 </Button>
-=======
-                <Button variant="outline" onClick={() => setIsNewMessageOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => setIsNewMessageOpen(false)}>Send Message</Button>
->>>>>>> fb8e615faa26b7912c74d81a4d3d12b8d7762a75
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -164,13 +157,8 @@ function MessagesPage() {
             {threads.map(([caseId, msgs]) => {
               const last = msgs![msgs!.length - 1];
               const isActive = selected === caseId;
-<<<<<<< HEAD
               const unreadCount = msgs!.filter(m => !m.read && !readMessageIds.has(m.id) && m.from !== user?.id).length;
               
-=======
-              const unreadCount = msgs!.filter((m) => !m.read && m.from !== user?.id).length;
-
->>>>>>> fb8e615faa26b7912c74d81a4d3d12b8d7762a75
               return (
                 <button
                   key={caseId}

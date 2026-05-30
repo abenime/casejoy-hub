@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useNavigate, Link, useRouterState } from "@tanstack/react-router";
-import React, { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   LayoutDashboard,
   Briefcase,
@@ -182,6 +182,7 @@ function AppLayout() {
   const { user, status, logout, isClient } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [readNotificationIds, setReadNotificationIds] = useState<Set<string>>(new Set());
 
   const { data: notifications } = useApi(() => {
     return user ? api.getNotifications(user) : Promise.resolve([]);
@@ -192,6 +193,8 @@ function AppLayout() {
       navigate({ to: "/login" });
     }
   }, [user, status, navigate]);
+
+  const unreadCount = notifications ? notifications.filter(n => !n.isRead && !readNotificationIds.has(n.id)).length : 0;
 
   if (status === "loading" || !user) {
     return (
@@ -303,11 +306,18 @@ function AppLayout() {
               {user.role}
             </Badge>
 
-            <DropdownMenu>
+            <DropdownMenu onOpenChange={(open) => {
+              if (open && unreadCount > 0) {
+                const unreadIds = notifications!
+                  .filter(n => !n.isRead && !readNotificationIds.has(n.id))
+                  .map(n => n.id);
+                setReadNotificationIds(prev => new Set([...prev, ...unreadIds]));
+              }
+            }}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-4 w-4" />
-                  {notifications && notifications.filter(n => !n.isRead).length > 0 && (
+                  {unreadCount > 0 && (
                     <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" />
                   )}
                 </Button>
@@ -315,9 +325,9 @@ function AppLayout() {
               <DropdownMenuContent align="end" className="w-80">
                 <DropdownMenuLabel>
                   Notifications 
-                  {notifications && notifications.filter(n => !n.isRead).length > 0 && (
+                  {unreadCount > 0 && (
                     <span className="ml-2 rounded-md bg-accent px-1.5 py-0.5 text-[10px] text-accent-foreground">
-                      {notifications.filter(n => !n.isRead).length} new
+                      {unreadCount} new
                     </span>
                   )}
                 </DropdownMenuLabel>
@@ -328,22 +338,25 @@ function AppLayout() {
                     No notifications
                   </div>
                 ) : (
-                  notifications.map((n) => (
-                    <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1 p-3 cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <span className={`h-2 w-2 rounded-full ${!n.isRead ? 'bg-accent' : 'bg-transparent border border-muted-foreground'}`} />
-                        <p className={`text-sm ${!n.isRead ? 'font-semibold text-foreground' : 'font-medium text-foreground/80'}`}>
-                          {n.title}
+                  notifications.map((n) => {
+                    const isUnread = !n.isRead && !readNotificationIds.has(n.id);
+                    return (
+                      <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1 p-3 cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <span className={`h-2 w-2 rounded-full ${isUnread ? 'bg-accent' : 'bg-transparent border border-muted-foreground'}`} />
+                          <p className={`text-sm ${isUnread ? 'font-semibold text-foreground' : 'font-medium text-foreground/80'}`}>
+                            {n.title}
+                          </p>
+                        </div>
+                        <p className="text-xs text-muted-foreground ml-4">
+                          {n.body}
                         </p>
-                      </div>
-                      <p className="text-xs text-muted-foreground ml-4">
-                        {n.body}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground ml-4 mt-1">
-                        {new Date(n.timestamp).toLocaleDateString()}
-                      </p>
-                    </DropdownMenuItem>
-                  ))
+                        <p className="text-[10px] text-muted-foreground ml-4 mt-1">
+                          {new Date(n.timestamp).toLocaleDateString()}
+                        </p>
+                      </DropdownMenuItem>
+                    );
+                  })
                 )}
                 
                 <DropdownMenuSeparator />

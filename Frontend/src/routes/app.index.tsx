@@ -13,7 +13,8 @@ import {
   UploadCloud,
   CheckCircle,
   FileIcon,
-  X
+  X,
+  CreditCard
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApi } from "@/lib/use-api";
@@ -30,6 +31,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/app/")({
   component: Dashboard,
@@ -218,10 +222,24 @@ function ClientDashboard() {
   const [uploadStatus, setUploadStatus] = useState<"idle" | "selected" | "uploading" | "success">("idle");
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState<"idle" | "processing" | "success">("idle");
+  const [localEvents, setLocalEvents] = useState<NonNullable<typeof events>>([]);
+  
+  const [schedCase, setSchedCase] = useState("");
+  const [schedType, setSchedType] = useState("phone");
+  const [schedDate, setSchedDate] = useState("");
+  const [schedTime, setSchedTime] = useState("morning");
+
   const outstanding = (invoices ?? [])
     .filter((i) => i.status !== "paid")
     .reduce((s, i) => s + i.amount, 0);
-  const upcoming = (events ?? []).slice(0, 3);
+
+  const upcoming = [...(events ?? []), ...localEvents]
+    .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime())
+    .slice(0, 3);
 
   return (
     <div>
@@ -396,14 +414,191 @@ function ClientDashboard() {
                   </DialogContent>
                 </Dialog>
 
-                <Button variant="outline" className="w-full justify-start">
-                  <DollarSign className="mr-2 h-4 w-4" />
-                  Make a Payment
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  Schedule Appointment
-                </Button>
+                <Dialog open={isPaymentOpen} onOpenChange={(open) => {
+                  setIsPaymentOpen(open);
+                  if (!open) setTimeout(() => { setPaymentStatus("idle"); setPaymentAmount(""); }, 300);
+                }}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start">
+                      <DollarSign className="mr-2 h-4 w-4" />
+                      Make a Payment
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Make a Payment</DialogTitle>
+                      <DialogDescription>
+                        Pay an outstanding invoice or replenish your trust retainer.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    {paymentStatus === "idle" && (
+                      <div className="grid gap-4 py-4">
+                        <div className="bg-muted/50 p-4 rounded-lg flex justify-between items-center border border-border">
+                          <div>
+                            <p className="text-sm font-medium">Total Outstanding</p>
+                            <p className="text-xs text-muted-foreground">Across {invoices?.filter(i => i.status !== "paid").length} open invoices</p>
+                          </div>
+                          <p className="text-xl font-bold">${(outstanding / 1000).toFixed(1)}k</p>
+                        </div>
+                        
+                        <div className="grid gap-2">
+                          <Label htmlFor="amount">Payment Amount</Label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              id="amount" 
+                              type="number" 
+                              placeholder="0.00" 
+                              className="pl-9"
+                              value={paymentAmount}
+                              onChange={(e) => setPaymentAmount(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid gap-2">
+                          <Label htmlFor="method">Payment Method</Label>
+                          <Select defaultValue="card_ending_4242">
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a card" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="card_ending_4242">Visa ending in 4242</SelectItem>
+                              <SelectItem value="bank_ending_1122">Chase Checking **1122</SelectItem>
+                              <SelectItem value="new_card">+ Add new card</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    )}
+
+                    {paymentStatus === "processing" && (
+                      <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                        <p className="text-sm font-medium">Processing payment securely...</p>
+                      </div>
+                    )}
+
+                    {paymentStatus === "success" && (
+                      <div className="flex flex-col items-center justify-center py-12 space-y-2">
+                        <div className="h-12 w-12 rounded-full bg-success/20 flex items-center justify-center mb-2">
+                          <CheckCircle className="h-6 w-6 text-success" />
+                        </div>
+                        <p className="text-base font-semibold text-foreground">Payment Successful</p>
+                        <p className="text-sm text-muted-foreground">Receipt sent to {user!.email}</p>
+                      </div>
+                    )}
+
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsPaymentOpen(false)}>
+                        {paymentStatus === "success" ? "Close" : "Cancel"}
+                      </Button>
+                      {paymentStatus === "idle" && (
+                        <Button 
+                          disabled={!paymentAmount || isNaN(Number(paymentAmount)) || Number(paymentAmount) <= 0}
+                          onClick={() => {
+                            setPaymentStatus("processing");
+                            setTimeout(() => setPaymentStatus("success"), 2000);
+                          }}
+                        >
+                          <CreditCard className="mr-2 h-4 w-4" />
+                          Pay ${paymentAmount || "0.00"}
+                        </Button>
+                      )}
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog open={isScheduleOpen} onOpenChange={setIsScheduleOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start">
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      Schedule Appointment
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Request Appointment</DialogTitle>
+                      <DialogDescription>
+                        Select a time to speak with your assigned attorney.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid gap-2">
+                        <Label>Regarding Matter</Label>
+                        <Select value={schedCase || (cases?.[0]?.id ?? "")} onValueChange={setSchedCase}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a case" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {cases?.map(c => (
+                              <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>Meeting Type</Label>
+                        <Select value={schedType} onValueChange={setSchedType}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="phone">Phone Call</SelectItem>
+                            <SelectItem value="video">Video Conference</SelectItem>
+                            <SelectItem value="in_person">In-Office Visit</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                          <Label>Preferred Date</Label>
+                          <Input 
+                            type="date" 
+                            value={schedDate}
+                            onChange={(e) => setSchedDate(e.target.value)}
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>Time Preference</Label>
+                          <Select value={schedTime} onValueChange={setSchedTime}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select time" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="morning">Morning (9am-12pm)</SelectItem>
+                              <SelectItem value="afternoon">Afternoon (1pm-5pm)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsScheduleOpen(false)}>Cancel</Button>
+                      <Button 
+                        disabled={!schedDate}
+                        onClick={() => {
+                          const newEvent = {
+                            id: `local-evt-${Date.now()}`,
+                            date: schedDate,
+                            time: schedTime === "morning" ? "09:00" : "14:00",
+                            title: `Client requested ${schedType.replace('_', ' ')}`,
+                            type: "meeting",
+                            caseId: schedCase || (cases?.[0]?.id ?? "c1"),
+                            reminder: "1d",
+                            notes: "Requested via Client Portal"
+                          };
+                          setLocalEvents(prev => [...prev, newEvent]);
+                          setIsScheduleOpen(false);
+                          setSchedDate("");
+                        }}
+                      >
+                        Send Request
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 
