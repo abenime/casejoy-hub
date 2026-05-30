@@ -22,6 +22,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 export const Route = createFileRoute("/app")({
   component: AppLayout,
 });
@@ -219,10 +228,44 @@ function AppLayout() {
             <Badge variant="secondary" className="hidden capitalize sm:inline-flex">
               {user.role}
             </Badge>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" />
-            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="h-4 w-4" />
+                  <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-accent" />
+                    <p className="text-sm font-medium">New message from Marcus Hale</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-4">
+                    "James — the status conference is confirmed..."
+                  </p>
+                  <p className="text-[10px] text-muted-foreground ml-4 mt-1">2 hours ago</p>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-transparent border border-muted-foreground" />
+                    <p className="text-sm font-medium">Document requested</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-4">
+                    Please upload your W-2 for Case C2.
+                  </p>
+                  <p className="text-[10px] text-muted-foreground ml-4 mt-1">Yesterday</p>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="justify-center text-accent cursor-pointer">
+                  View all notifications
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Avatar className="h-8 w-8 lg:hidden">
               <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
                 {user.avatar}
