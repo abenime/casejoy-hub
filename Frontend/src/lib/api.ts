@@ -198,7 +198,7 @@ export const api = {
     return updatedUser;
   },
 
-  async updateUserProfile(userId: string, name: string, email: string, phone: string): Promise<User> {
+    async updateUserProfile(userId: string, name: string, email: string, phone: string): Promise<User> {
     const users = getLocalUsers();
     let updatedUser: User | null = null;
 
@@ -243,6 +243,18 @@ export const api = {
     }
 
     return delay(updatedUser, 120);
+  },
+
+  // --- SETTINGS / BRANDING ---
+  getSettings: async () => {
+    return await fetchApi<Record<string, string>>("/settings");
+  },
+
+  updateSettings: async (settingsData: any): Promise<any> => {
+    return await fetchApi("/settings", {
+      method: "PUT",
+      body: JSON.stringify(settingsData),
+    });
   },
 
   // Users
