@@ -83,12 +83,13 @@ export const api = {
       throw new Error("Email already registered");
     }
 
-    const initials = name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2) || "U";
+    const initials =
+      name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2) || "U";
 
     const newUser: User = {
       id: `u-${Date.now()}`,

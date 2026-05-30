@@ -41,8 +41,12 @@ function Index() {
               <Scale className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-bold tracking-widest text-slate-100 uppercase">Vance &amp; Hale</p>
-              <p className="text-[10px] text-slate-400 tracking-wider font-semibold uppercase">Attorneys at Law</p>
+              <p className="text-sm font-bold tracking-widest text-slate-100 uppercase">
+                Vance &amp; Hale
+              </p>
+              <p className="text-[10px] text-slate-400 tracking-wider font-semibold uppercase">
+                Attorneys at Law
+              </p>
             </div>
           </div>
 
@@ -70,14 +74,17 @@ function Index() {
         </div>
 
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-white max-w-4xl leading-[1.15] font-serif">
-          State-of-the-Art Advocacy.<br/>
+          State-of-the-Art Advocacy.
+          <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-300">
             Unified Client Practice Management.
           </span>
         </h1>
 
         <p className="mt-6 text-sm sm:text-base text-slate-400 max-w-2xl leading-relaxed">
-          Welcome to the Vance &amp; Hale legal platform. Access real-time case analytics, securely review and sign legal pleadings on our multi-page reader desk, exchange encrypted communications, and manage trust accounts.
+          Welcome to the Vance &amp; Hale legal platform. Access real-time case analytics, securely
+          review and sign legal pleadings on our multi-page reader desk, exchange encrypted
+          communications, and manage trust accounts.
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
@@ -104,9 +111,12 @@ function Index() {
             <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/10 mb-4">
               <FileCheck className="h-5 w-5" />
             </div>
-            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wide">Dynamic Document Vault</h3>
+            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wide">
+              Dynamic Document Vault
+            </h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              Review pleading briefs on simulated A4 paper sheets, authorize filings with legally compliant electronic signatures, and transfer files via our drag-and-drop portal.
+              Review pleading briefs on simulated A4 paper sheets, authorize filings with legally
+              compliant electronic signatures, and transfer files via our drag-and-drop portal.
             </p>
           </div>
 
@@ -114,9 +124,12 @@ function Index() {
             <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/10 mb-4">
               <MessageSquareCode className="h-5 w-5" />
             </div>
-            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wide">Encrypted Channels</h3>
+            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wide">
+              Encrypted Channels
+            </h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              Message your senior associates, paralegals, or clients directly inside secure, real-time consultation feeds with full notification delivery and updates.
+              Message your senior associates, paralegals, or clients directly inside secure,
+              real-time consultation feeds with full notification delivery and updates.
             </p>
           </div>
 
@@ -124,9 +137,12 @@ function Index() {
             <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/10 mb-4">
               <CalendarDays className="h-5 w-5" />
             </div>
-            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wide">Caseload Calendar</h3>
+            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wide">
+              Caseload Calendar
+            </h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              Track court deadlines, deposition timings, and scheduled mediation events. Auto-resolve conflict conflicts utilizing real-time date filters.
+              Track court deadlines, deposition timings, and scheduled mediation events.
+              Auto-resolve conflict conflicts utilizing real-time date filters.
             </p>
           </div>
         </section>
@@ -135,7 +151,9 @@ function Index() {
       {/* Footer */}
       <footer className="border-t border-slate-900/60 bg-slate-950/80 py-8 text-center text-xs text-slate-500">
         <p>© {new Date().getFullYear()} Vance &amp; Hale LLP. All rights reserved.</p>
-        <p className="mt-1 text-[10px] text-slate-600 uppercase tracking-wider font-semibold">Confidential Enterprise Practice Management Portal</p>
+        <p className="mt-1 text-[10px] text-slate-600 uppercase tracking-wider font-semibold">
+          Confidential Enterprise Practice Management Portal
+        </p>
       </footer>
     </div>
   );

@@ -39,7 +39,7 @@ function SignupPage() {
     try {
       // Create user account (defaults to 'client' role)
       await api.signUp(name, email, password, phone);
-      
+
       // Automatically log them in
       const loggedIn = await login(email, password);
       if (loggedIn) {
@@ -73,7 +73,8 @@ function SignupPage() {
             Join the Client Portal
           </h1>
           <p className="max-w-md text-sm text-sidebar-foreground/70">
-            Create an account to securely access documents, track invoices, and message your legal representation.
+            Create an account to securely access documents, track invoices, and message your legal
+            representation.
           </p>
         </div>
         <p className="text-xs text-sidebar-foreground/50">
@@ -86,9 +87,7 @@ function SignupPage() {
         <div className="w-full max-w-sm space-y-8">
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-tight">Create an account</h2>
-            <p className="text-sm text-muted-foreground">
-              Register for your client account.
-            </p>
+            <p className="text-sm text-muted-foreground">Register for your client account.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

@@ -294,9 +294,7 @@ function UserManagementTab() {
       accessorKey: "phone",
       header: "Phone",
       cell: ({ row }) => (
-        <span className="text-xs text-muted-foreground">
-          {row.original.phone || "—"}
-        </span>
+        <span className="text-xs text-muted-foreground">{row.original.phone || "—"}</span>
       ),
     },
     {
@@ -327,20 +325,34 @@ function UserManagementTab() {
             </Dropdown.Trigger>
             <Dropdown.Content align="end">
               <Dropdown.Label>Actions</Dropdown.Label>
-              <Dropdown.Item className="cursor-pointer" onClick={() => handleRoleChange(row.original.id, "admin")}>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "admin")}
+              >
                 Make Admin
               </Dropdown.Item>
-              <Dropdown.Item className="cursor-pointer" onClick={() => handleRoleChange(row.original.id, "lawyer")}>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "lawyer")}
+              >
                 Make Lawyer
               </Dropdown.Item>
-              <Dropdown.Item className="cursor-pointer" onClick={() => handleRoleChange(row.original.id, "paralegal")}>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "paralegal")}
+              >
                 Make Paralegal
               </Dropdown.Item>
-              <Dropdown.Item className="cursor-pointer" onClick={() => handleRoleChange(row.original.id, "client")}>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "client")}
+              >
                 Make Client
               </Dropdown.Item>
               <Dropdown.Separator />
-              <Dropdown.Item className="text-destructive cursor-pointer">Revoke Access</Dropdown.Item>
+              <Dropdown.Item className="text-destructive cursor-pointer">
+                Revoke Access
+              </Dropdown.Item>
             </Dropdown.Content>
           </Dropdown>
         );
