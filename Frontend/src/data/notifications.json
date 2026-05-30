@@ -1,0 +1,38 @@
+[
+  {
+    "id": "n1",
+    "userId": "u2",
+    "title": "New document uploaded",
+    "body": "James Whitaker uploaded 'W-2 2025.pdf' for Case C2.",
+    "isRead": false,
+    "timestamp": "2026-05-30T08:15:00Z",
+    "type": "document"
+  },
+  {
+    "id": "n2",
+    "userId": "u2",
+    "title": "New message",
+    "body": "James: \"Can we reschedule our call to 3pm?\"",
+    "isRead": true,
+    "timestamp": "2026-05-29T14:30:00Z",
+    "type": "message"
+  },
+  {
+    "id": "n3",
+    "userId": "u4",
+    "title": "Document requested",
+    "body": "Please upload your tax returns for 2025 for Case C1.",
+    "isRead": false,
+    "timestamp": "2026-05-29T10:00:00Z",
+    "type": "alert"
+  },
+  {
+    "id": "n4",
+    "userId": "u4",
+    "title": "New message from Marcus Hale",
+    "body": "Marcus — \"The status conference is confirmed for June 2...\"",
+    "isRead": false,
+    "timestamp": "2026-05-28T14:22:00Z",
+    "type": "message"
+  }
+]

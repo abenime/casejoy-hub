@@ -29,7 +29,10 @@ function MessagesPage() {
   const [activeCase, setActiveCase] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [isNewMessageOpen, setIsNewMessageOpen] = useState(false);
+  const [newSubject, setNewSubject] = useState("");
+  const [newMessageBody, setNewMessageBody] = useState("");
   const [localMessages, setLocalMessages] = useState<NonNullable<typeof messages>>([]);
+  const [readMessageIds, setReadMessageIds] = useState<Set<string>>(new Set());
 
   const threads = useMemo(() => {
     const map = new Map<string, NonNullable<typeof messages>>();
@@ -52,10 +55,32 @@ function MessagesPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    const scrollToBottom = () => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
+    };
+    // Scroll immediately, and also slightly after to ensure DOM has updated
+    scrollToBottom();
+    const timeoutId = setTimeout(scrollToBottom, 50);
+    return () => clearTimeout(timeoutId);
   }, [thread]);
+
+  useEffect(() => {
+    if (selected && thread.length > 0) {
+      const unreadIds = thread
+        .filter((m) => !m.read && m.from !== user?.id && !readMessageIds.has(m.id))
+        .map((m) => m.id);
+      
+      if (unreadIds.length > 0) {
+        setReadMessageIds((prev) => {
+          const next = new Set(prev);
+          unreadIds.forEach((id) => next.add(id));
+          return next;
+        });
+      }
+    }
+  }, [selected, thread, user?.id, readMessageIds]);
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
@@ -78,12 +103,42 @@ function MessagesPage() {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <Input placeholder="Subject / Case Number" />
-                <Input placeholder="Type your message..." className="h-20" />
+                <Input 
+                  placeholder="Subject / Case Number (e.g. c1)" 
+                  value={newSubject}
+                  onChange={(e) => setNewSubject(e.target.value)}
+                />
+                <Input 
+                  placeholder="Type your message..." 
+                  className="h-20" 
+                  value={newMessageBody}
+                  onChange={(e) => setNewMessageBody(e.target.value)}
+                />
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsNewMessageOpen(false)}>Cancel</Button>
-                <Button onClick={() => setIsNewMessageOpen(false)}>Send Message</Button>
+                <Button 
+                  disabled={!newSubject.trim() || !newMessageBody.trim()}
+                  onClick={() => {
+                    const newMessage = {
+                      id: `local-${Date.now()}`,
+                      body: newMessageBody,
+                      caseId: newSubject.toLowerCase().replace(/[^a-z0-9]/g, ''),
+                      from: user!.id,
+                      fromName: user!.name,
+                      to: "u2",
+                      at: new Date().toISOString(),
+                      read: true,
+                    };
+                    setLocalMessages(prev => [...prev, newMessage]);
+                    setActiveCase(newMessage.caseId);
+                    setNewSubject("");
+                    setNewMessageBody("");
+                    setIsNewMessageOpen(false);
+                  }}
+                >
+                  Send Message
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -102,7 +157,7 @@ function MessagesPage() {
             {threads.map(([caseId, msgs]) => {
               const last = msgs![msgs!.length - 1];
               const isActive = selected === caseId;
-              const unreadCount = msgs!.filter(m => !m.read && m.from !== user?.id).length;
+              const unreadCount = msgs!.filter(m => !m.read && !readMessageIds.has(m.id) && m.from !== user?.id).length;
               
               return (
                 <button

@@ -8,6 +8,7 @@ import documentsData from "@/data/documents.json";
 import invoicesData from "@/data/invoices.json";
 import messagesData from "@/data/messages.json";
 import analyticsData from "@/data/analytics.json";
+import notificationsData from "@/data/notifications.json";
 
 export type Role = "admin" | "lawyer" | "paralegal" | "client";
 
@@ -117,4 +118,10 @@ export const api = {
 
   // Analytics — firm only
   getAnalytics: () => delay(analyticsData),
+
+  // Notifications
+  async getNotifications(user: User) {
+    const all = notificationsData;
+    return delay(all.filter((n) => n.userId === user.id));
+  },
 };

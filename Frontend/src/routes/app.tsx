@@ -17,6 +17,8 @@ import {
   Search,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useApi } from "@/lib/use-api";
+import { api } from "@/lib/api";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -114,6 +116,10 @@ function AppLayout() {
   const { user, loading, logout, isClient } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const { data: notifications } = useApi(() => {
+    return user ? api.getNotifications(user) : Promise.resolve([]);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/login" });
@@ -233,32 +239,45 @@ function AppLayout() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-4 w-4" />
-                  <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" />
+                  {notifications && notifications.filter(n => !n.isRead).length > 0 && (
+                    <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" />
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  Notifications 
+                  {notifications && notifications.filter(n => !n.isRead).length > 0 && (
+                    <span className="ml-2 rounded-md bg-accent px-1.5 py-0.5 text-[10px] text-accent-foreground">
+                      {notifications.filter(n => !n.isRead).length} new
+                    </span>
+                  )}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-accent" />
-                    <p className="text-sm font-medium">New message from Marcus Hale</p>
+                
+                {!notifications || notifications.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    No notifications
                   </div>
-                  <p className="text-xs text-muted-foreground ml-4">
-                    "James — the status conference is confirmed..."
-                  </p>
-                  <p className="text-[10px] text-muted-foreground ml-4 mt-1">2 hours ago</p>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-transparent border border-muted-foreground" />
-                    <p className="text-sm font-medium">Document requested</p>
-                  </div>
-                  <p className="text-xs text-muted-foreground ml-4">
-                    Please upload your W-2 for Case C2.
-                  </p>
-                  <p className="text-[10px] text-muted-foreground ml-4 mt-1">Yesterday</p>
-                </DropdownMenuItem>
+                ) : (
+                  notifications.map((n) => (
+                    <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1 p-3 cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <span className={`h-2 w-2 rounded-full ${!n.isRead ? 'bg-accent' : 'bg-transparent border border-muted-foreground'}`} />
+                        <p className={`text-sm ${!n.isRead ? 'font-semibold text-foreground' : 'font-medium text-foreground/80'}`}>
+                          {n.title}
+                        </p>
+                      </div>
+                      <p className="text-xs text-muted-foreground ml-4">
+                        {n.body}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground ml-4 mt-1">
+                        {new Date(n.timestamp).toLocaleDateString()}
+                      </p>
+                    </DropdownMenuItem>
+                  ))
+                )}
+                
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="justify-center text-accent cursor-pointer">
                   View all notifications

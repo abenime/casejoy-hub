@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   Briefcase,
   DollarSign,
@@ -9,6 +10,10 @@ import {
   FileText,
   Calendar as CalendarIcon,
   ArrowUpRight,
+  UploadCloud,
+  CheckCircle,
+  FileIcon,
+  X
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApi } from "@/lib/use-api";
@@ -16,6 +21,15 @@ import { api } from "@/lib/api";
 import { PageHeader, StatCard, statusColor } from "@/components/ui-shared";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/app/")({
   component: Dashboard,
@@ -200,6 +214,10 @@ function ClientDashboard() {
   const { data: invoices } = useApi(() => api.getInvoices(user!), []);
   const { data: documents } = useApi(() => api.getDocuments(user!), []);
 
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "selected" | "uploading" | "success">("idle");
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+
   const outstanding = (invoices ?? [])
     .filter((i) => i.status !== "paid")
     .reduce((s, i) => s + i.amount, 0);
@@ -269,10 +287,115 @@ function ClientDashboard() {
                 <h2 className="text-sm font-semibold text-foreground">Quick Actions</h2>
               </div>
               <div className="p-4 space-y-2">
-                <Button variant="outline" className="w-full justify-start">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Upload Requested Document
-                </Button>
+                <Dialog open={isUploadOpen} onOpenChange={(open) => {
+                  setIsUploadOpen(open);
+                  if (!open) {
+                    setTimeout(() => {
+                      setUploadStatus("idle");
+                      setSelectedFileName(null);
+                    }, 300);
+                  }
+                }}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start">
+                      <FileText className="mr-2 h-4 w-4" />
+                      Upload Requested Document
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Upload Document</DialogTitle>
+                      <DialogDescription>
+                        Securely upload requested documents directly to your legal team.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      {uploadStatus === "idle" && (
+                        <div className="border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center p-8 text-center bg-muted/20 relative group overflow-hidden">
+                          <input 
+                            type="file" 
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setSelectedFileName(file.name);
+                                setUploadStatus("selected");
+                              }
+                            }}
+                          />
+                          <UploadCloud className="h-10 w-10 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
+                          <p className="text-sm font-medium mb-1">Click to browse or drag file here</p>
+                          <p className="text-xs text-muted-foreground">PDF, DOCX, JPG or PNG (max. 50MB)</p>
+                          <Button className="mt-4 pointer-events-none" variant="secondary">
+                            Select File
+                          </Button>
+                        </div>
+                      )}
+
+                      {uploadStatus === "selected" && (
+                        <div className="border border-border rounded-lg p-4">
+                          <div className="flex items-center justify-between bg-muted/50 p-3 rounded-md">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                              <div className="h-10 w-10 flex items-center justify-center bg-primary/10 text-primary rounded-md shrink-0">
+                                <FileIcon className="h-5 w-5" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">{selectedFileName}</p>
+                                <p className="text-xs text-muted-foreground">Ready to upload</p>
+                              </div>
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                              onClick={() => {
+                                setUploadStatus("idle");
+                                setSelectedFileName(null);
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
+                          <Button 
+                            className="w-full mt-4"
+                            onClick={() => {
+                              setUploadStatus("uploading");
+                              setTimeout(() => setUploadStatus("success"), 1500);
+                            }}
+                          >
+                            <UploadCloud className="mr-2 h-4 w-4" />
+                            Upload to File
+                          </Button>
+                        </div>
+                      )}
+                      
+                      {uploadStatus === "uploading" && (
+                        <div className="flex flex-col items-center justify-center p-8 text-center space-y-4">
+                          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                          <p className="text-sm font-medium">Encrypting and uploading...</p>
+                          <p className="text-xs text-muted-foreground">{selectedFileName}</p>
+                        </div>
+                      )}
+
+                      {uploadStatus === "success" && (
+                        <div className="flex flex-col items-center justify-center p-8 text-center space-y-2">
+                          <div className="h-12 w-12 rounded-full bg-success/20 flex items-center justify-center mb-2">
+                            <CheckCircle className="h-6 w-6 text-success" />
+                          </div>
+                          <p className="text-base font-semibold text-foreground">Upload Complete</p>
+                          <p className="text-sm text-muted-foreground">Your legal team has been notified.</p>
+                        </div>
+                      )}
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsUploadOpen(false)}>
+                        {uploadStatus === "success" ? "Close" : "Cancel"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
                 <Button variant="outline" className="w-full justify-start">
                   <DollarSign className="mr-2 h-4 w-4" />
                   Make a Payment
