@@ -20,6 +20,9 @@ return new class extends Migration
             $table->date('since')->nullable();
             $table->integer('activeCases');
             $table->decimal('outstanding', 10, 2)->default(0);
+            $table->decimal('retainerBalance', 10, 2)->default(0);
+            $table->string('address')->nullable();
+            $table->json('notes')->nullable();
             $table->timestamps();
         });
     }

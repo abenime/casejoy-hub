@@ -32,6 +32,7 @@ class JsonDataSeeder extends Seeder
         // Clients
         $clients = json_decode(File::get("$frontendDataPath/clients.json"), true);
         foreach ($clients as $client) {
+            $client['notes'] = isset($client['notes']) ? json_encode($client['notes']) : null;
             DB::table('clients')->insert($client);
         }
 

@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('time')->nullable();
             $table->string('type');
             $table->string('location')->nullable();
+            $table->string('reminder')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

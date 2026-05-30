@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApi } from "@/lib/use-api";
-import { api } from "@/lib/api";
+import { api, type Event } from "@/lib/api";
 import { PageHeader } from "@/components/ui-shared";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -543,7 +543,7 @@ function CalendarPage() {
                     preparation meeting is recommended.
                   </p>
                   <Button
-                    size="xs"
+                    size="sm"
                     onClick={() =>
                       handleAutoSchedule(
                         "Holloway Pre-trial Prep",
@@ -565,7 +565,7 @@ function CalendarPage() {
                     consultation recommended.
                   </p>
                   <Button
-                    size="xs"
+                    size="sm"
                     onClick={() =>
                       handleAutoSchedule(
                         "Estate Planning Consultation",
