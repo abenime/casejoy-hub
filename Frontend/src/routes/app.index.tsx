@@ -42,12 +42,6 @@ function FirmDashboard({ user }: { user: { name: string } }) {
       <PageHeader
         title={`Good morning, ${user.name.split(" ")[0]}`}
         description="Here's what's happening across the firm today."
-        actions={
-          <>
-            <Button variant="outline">Export report</Button>
-            <Button>New case</Button>
-          </>
-        }
       />
       <div className="space-y-6 p-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
