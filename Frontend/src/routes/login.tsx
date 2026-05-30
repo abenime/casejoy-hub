@@ -65,8 +65,8 @@ function LoginPage() {
             One platform for your firm and your clients.
           </h1>
           <p className="max-w-md text-sm text-sidebar-foreground/70">
-            Cases, billing, documents, and secure client communication — unified in a
-            workspace built for modern legal teams.
+            Cases, billing, documents, and secure client communication — unified in a workspace
+            built for modern legal teams.
           </p>
         </div>
         <p className="text-xs text-sidebar-foreground/50">

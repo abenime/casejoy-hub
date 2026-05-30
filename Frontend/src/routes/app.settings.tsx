@@ -37,7 +37,9 @@ function SettingsPage() {
         {/* Firm profile */}
         <div className="rounded-lg border border-border bg-card p-6">
           <h2 className="text-sm font-semibold text-foreground">Firm profile</h2>
-          <p className="mt-1 text-xs text-muted-foreground">Branding visible to clients in the portal.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Branding visible to clients in the portal.
+          </p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>Firm name</Label>
@@ -66,7 +68,9 @@ function SettingsPage() {
           <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <div>
               <h2 className="text-sm font-semibold text-foreground">Team & permissions</h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">Manage roles for lawyers, paralegals, and staff.</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Manage roles for lawyers, paralegals, and staff.
+              </p>
             </div>
             <Button>Invite member</Button>
           </div>
@@ -82,7 +86,9 @@ function SettingsPage() {
                   <p className="text-sm font-medium text-foreground">{s.name}</p>
                   <p className="text-xs text-muted-foreground">{s.email}</p>
                 </div>
-                <Badge variant="outline" className="capitalize">{s.role}</Badge>
+                <Badge variant="outline" className="capitalize">
+                  {s.role}
+                </Badge>
                 <span className="text-sm text-muted-foreground">{s.title}</span>
               </div>
             ))}

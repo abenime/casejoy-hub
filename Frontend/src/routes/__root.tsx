@@ -80,7 +80,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Vance & Hale — Legal Operations" },
-      { name: "description", content: "Modern practice management for law firms and their clients." },
+      {
+        name: "description",
+        content: "Modern practice management for law firms and their clients.",
+      },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

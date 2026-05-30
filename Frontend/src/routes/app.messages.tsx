@@ -34,7 +34,10 @@ function MessagesPage() {
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
-      <PageHeader title="Messages" description="Secure communication between your legal team and clients." />
+      <PageHeader
+        title="Messages"
+        description="Secure communication between your legal team and clients."
+      />
       <div className="flex flex-1 overflow-hidden">
         {/* Threads list */}
         <div className="hidden w-72 shrink-0 flex-col border-r border-border bg-card md:flex">
@@ -58,7 +61,11 @@ function MessagesPage() {
                 >
                   <Avatar className="h-9 w-9">
                     <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-                      {last.fromName.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                      {last.fromName
+                        .split(" ")
+                        .map((n) => n[0])
+                        .slice(0, 2)
+                        .join("")}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
@@ -89,9 +96,13 @@ function MessagesPage() {
                         : "border border-border bg-card text-foreground"
                     }`}
                   >
-                    {!mine && <p className="mb-0.5 text-xs font-semibold opacity-75">{m.fromName}</p>}
+                    {!mine && (
+                      <p className="mb-0.5 text-xs font-semibold opacity-75">{m.fromName}</p>
+                    )}
                     <p>{m.body}</p>
-                    <p className={`mt-1 text-[10px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                    <p
+                      className={`mt-1 text-[10px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                    >
                       {new Date(m.at).toLocaleString()}
                     </p>
                   </div>

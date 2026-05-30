@@ -29,12 +29,37 @@ export const Route = createFileRoute("/app")({
 type NavItem = { to: string; label: string; icon: typeof Briefcase; roles: string[] };
 
 const NAV: NavItem[] = [
-  { to: "/app", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "lawyer", "paralegal", "client"] },
-  { to: "/app/cases", label: "Cases", icon: Briefcase, roles: ["admin", "lawyer", "paralegal", "client"] },
+  {
+    to: "/app",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    roles: ["admin", "lawyer", "paralegal", "client"],
+  },
+  {
+    to: "/app/cases",
+    label: "Cases",
+    icon: Briefcase,
+    roles: ["admin", "lawyer", "paralegal", "client"],
+  },
   { to: "/app/clients", label: "Clients", icon: Users, roles: ["admin", "lawyer", "paralegal"] },
-  { to: "/app/calendar", label: "Calendar", icon: Calendar, roles: ["admin", "lawyer", "paralegal", "client"] },
-  { to: "/app/documents", label: "Documents", icon: FileText, roles: ["admin", "lawyer", "paralegal", "client"] },
-  { to: "/app/messages", label: "Messages", icon: MessagesSquare, roles: ["admin", "lawyer", "paralegal", "client"] },
+  {
+    to: "/app/calendar",
+    label: "Calendar",
+    icon: Calendar,
+    roles: ["admin", "lawyer", "paralegal", "client"],
+  },
+  {
+    to: "/app/documents",
+    label: "Documents",
+    icon: FileText,
+    roles: ["admin", "lawyer", "paralegal", "client"],
+  },
+  {
+    to: "/app/messages",
+    label: "Messages",
+    icon: MessagesSquare,
+    roles: ["admin", "lawyer", "paralegal", "client"],
+  },
   { to: "/app/billing", label: "Billing", icon: Receipt, roles: ["admin", "lawyer", "client"] },
   { to: "/app/analytics", label: "Analytics", icon: BarChart3, roles: ["admin", "lawyer"] },
   { to: "/app/ai", label: "AI Assistant", icon: Sparkles, roles: ["admin", "lawyer", "paralegal"] },
@@ -129,7 +154,9 @@ function AppLayout() {
           <div className="relative hidden max-w-md flex-1 md:block">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder={isClient ? "Search your cases & documents…" : "Search cases, clients, documents…"}
+              placeholder={
+                isClient ? "Search your cases & documents…" : "Search cases, clients, documents…"
+              }
               className="h-9 pl-9"
             />
           </div>

@@ -52,8 +52,7 @@ export const api = {
 
   // Users
   getUsers: () => delay(usersData as User[]),
-  getStaff: () =>
-    delay((usersData as User[]).filter((u) => u.role !== "client")),
+  getStaff: () => delay((usersData as User[]).filter((u) => u.role !== "client")),
 
   // Cases — scoped by role
   async getCases(user: User) {
@@ -63,8 +62,7 @@ export const api = {
     }
     return delay(all);
   },
-  getCase: (id: string) =>
-    delay((casesData as Case[]).find((c) => c.id === id) ?? null),
+  getCase: (id: string) => delay((casesData as Case[]).find((c) => c.id === id) ?? null),
 
   // Clients
   getClients: () => delay(clientsData),

@@ -1,8 +1,50 @@
 [
-  { "id": "e1", "date": "2026-06-02", "time": "09:30", "title": "Status conference — Whitaker v. Northbridge", "type": "court", "caseId": "c1" },
-  { "id": "e2", "date": "2026-06-03", "time": "14:00", "title": "Client meeting — Ana Martinez", "type": "meeting", "caseId": "c2" },
-  { "id": "e3", "date": "2026-06-05", "time": "10:00", "title": "Trial day 1 — State v. Holloway", "type": "court", "caseId": "c4" },
-  { "id": "e4", "date": "2026-06-08", "time": "16:30", "title": "Deadline: Trust amendment v3", "type": "deadline", "caseId": "c2" },
-  { "id": "e5", "date": "2026-06-12", "time": "17:00", "title": "Deadline: Motion response", "type": "deadline", "caseId": "c1" },
-  { "id": "e6", "date": "2026-06-15", "time": "11:00", "title": "Consultation — James Whitaker", "type": "meeting", "caseId": "c3" }
+  {
+    "id": "e1",
+    "date": "2026-06-02",
+    "time": "09:30",
+    "title": "Status conference — Whitaker v. Northbridge",
+    "type": "court",
+    "caseId": "c1"
+  },
+  {
+    "id": "e2",
+    "date": "2026-06-03",
+    "time": "14:00",
+    "title": "Client meeting — Ana Martinez",
+    "type": "meeting",
+    "caseId": "c2"
+  },
+  {
+    "id": "e3",
+    "date": "2026-06-05",
+    "time": "10:00",
+    "title": "Trial day 1 — State v. Holloway",
+    "type": "court",
+    "caseId": "c4"
+  },
+  {
+    "id": "e4",
+    "date": "2026-06-08",
+    "time": "16:30",
+    "title": "Deadline: Trust amendment v3",
+    "type": "deadline",
+    "caseId": "c2"
+  },
+  {
+    "id": "e5",
+    "date": "2026-06-12",
+    "time": "17:00",
+    "title": "Deadline: Motion response",
+    "type": "deadline",
+    "caseId": "c1"
+  },
+  {
+    "id": "e6",
+    "date": "2026-06-15",
+    "time": "11:00",
+    "title": "Consultation — James Whitaker",
+    "type": "meeting",
+    "caseId": "c3"
+  }
 ]

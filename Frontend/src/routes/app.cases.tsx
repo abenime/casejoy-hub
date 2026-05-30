@@ -19,7 +19,9 @@ function CasesPage() {
     <div>
       <PageHeader
         title={isClient ? "Your matters" : "Cases"}
-        description={isClient ? "Every matter your firm is handling for you." : "All matters across the firm."}
+        description={
+          isClient ? "Every matter your firm is handling for you." : "All matters across the firm."
+        }
         actions={
           !isClient && (
             <>
@@ -58,7 +60,9 @@ function CasesPage() {
               )}
               {(cases ?? []).map((c) => (
                 <tr key={c.id} className="transition-colors hover:bg-secondary/40">
-                  <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground">{c.number}</td>
+                  <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground">
+                    {c.number}
+                  </td>
                   <td className="px-5 py-3.5 font-medium text-foreground">{c.title}</td>
                   {!isClient && <td className="px-5 py-3.5 text-foreground">{c.client}</td>}
                   <td className="px-5 py-3.5 text-muted-foreground">{c.practice}</td>

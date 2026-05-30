@@ -1,6 +1,42 @@
 [
-  { "id": "u4", "name": "James Whitaker", "email": "client@firm.com", "phone": "+1 (415) 555-0182", "company": "Whitaker Capital", "since": "2024-09-12", "activeCases": 2, "outstanding": 4250 },
-  { "id": "u5", "name": "Ana Martinez", "email": "client2@firm.com", "phone": "+1 (415) 555-0144", "company": "Self", "since": "2026-02-28", "activeCases": 1, "outstanding": 0 },
-  { "id": "cl3", "name": "Daniel Holloway", "email": "d.holloway@example.com", "phone": "+1 (415) 555-0117", "company": "Self", "since": "2025-11-20", "activeCases": 1, "outstanding": 1800 },
-  { "id": "cl4", "name": "Cedar Grove LLC", "email": "ops@cedargrove.co", "phone": "+1 (415) 555-0199", "company": "Cedar Grove LLC", "since": "2023-05-01", "activeCases": 0, "outstanding": 0 }
+  {
+    "id": "u4",
+    "name": "James Whitaker",
+    "email": "client@firm.com",
+    "phone": "+1 (415) 555-0182",
+    "company": "Whitaker Capital",
+    "since": "2024-09-12",
+    "activeCases": 2,
+    "outstanding": 4250
+  },
+  {
+    "id": "u5",
+    "name": "Ana Martinez",
+    "email": "client2@firm.com",
+    "phone": "+1 (415) 555-0144",
+    "company": "Self",
+    "since": "2026-02-28",
+    "activeCases": 1,
+    "outstanding": 0
+  },
+  {
+    "id": "cl3",
+    "name": "Daniel Holloway",
+    "email": "d.holloway@example.com",
+    "phone": "+1 (415) 555-0117",
+    "company": "Self",
+    "since": "2025-11-20",
+    "activeCases": 1,
+    "outstanding": 1800
+  },
+  {
+    "id": "cl4",
+    "name": "Cedar Grove LLC",
+    "email": "ops@cedargrove.co",
+    "phone": "+1 (415) 555-0199",
+    "company": "Cedar Grove LLC",
+    "since": "2023-05-01",
+    "activeCases": 0,
+    "outstanding": 0
+  }
 ]

@@ -41,8 +41,17 @@ function AnalyticsPage() {
       <PageHeader title="Analytics" description="Revenue, productivity, and case performance." />
       <div className="space-y-6 p-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Revenue YTD" value={`$${(data.revenue.ytd / 1000).toFixed(0)}k`} icon={DollarSign} />
-          <StatCard label="Growth" value={`+${data.revenue.growth}%`} icon={TrendingUp} hint="vs last month" />
+          <StatCard
+            label="Revenue YTD"
+            value={`$${(data.revenue.ytd / 1000).toFixed(0)}k`}
+            icon={DollarSign}
+          />
+          <StatCard
+            label="Growth"
+            value={`+${data.revenue.growth}%`}
+            icon={TrendingUp}
+            hint="vs last month"
+          />
           <StatCard label="Active cases" value={String(data.cases.active)} icon={Briefcase} />
           <StatCard label="Avg duration" value={`${data.cases.avgDuration}d`} icon={Clock} />
         </div>
@@ -55,9 +64,19 @@ function AnalyticsPage() {
                 <LineChart data={data.monthlyRevenue}>
                   <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.91 0.01 255)" />
                   <XAxis dataKey="month" stroke="oklch(0.48 0.02 260)" fontSize={12} />
-                  <YAxis stroke="oklch(0.48 0.02 260)" fontSize={12} tickFormatter={(v) => `$${v / 1000}k`} />
+                  <YAxis
+                    stroke="oklch(0.48 0.02 260)"
+                    fontSize={12}
+                    tickFormatter={(v) => `$${v / 1000}k`}
+                  />
                   <Tooltip formatter={(v: number) => `$${v.toLocaleString()}`} />
-                  <Line type="monotone" dataKey="value" stroke="#c89a3c" strokeWidth={2.5} dot={{ r: 4 }} />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#c89a3c"
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -68,7 +87,13 @@ function AnalyticsPage() {
             <div className="mt-4 h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={data.practiceBreakdown} dataKey="value" nameKey="name" innerRadius={55} outerRadius={90}>
+                  <Pie
+                    data={data.practiceBreakdown}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={55}
+                    outerRadius={90}
+                  >
                     {data.practiceBreakdown.map((_, i) => (
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
@@ -82,7 +107,9 @@ function AnalyticsPage() {
         </div>
 
         <div className="rounded-lg border border-border bg-card p-5">
-          <h2 className="text-sm font-semibold text-foreground">Lawyer productivity (billable hrs vs target)</h2>
+          <h2 className="text-sm font-semibold text-foreground">
+            Lawyer productivity (billable hrs vs target)
+          </h2>
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.lawyerProductivity}>

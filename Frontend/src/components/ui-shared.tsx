@@ -36,7 +36,9 @@ export function StatCard({
   return (
     <div className="rounded-lg border border-border bg-card p-5">
       <div className="flex items-start justify-between">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
         {Icon && (
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-secondary text-primary">
             <Icon className="h-4 w-4" />

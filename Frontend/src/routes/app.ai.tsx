@@ -9,18 +9,45 @@ export const Route = createFileRoute("/app/ai")({
 });
 
 const TOOLS = [
-  { icon: MessageSquare, title: "Client intake assistant", desc: "Auto-screen new clients with tailored questionnaires." },
-  { icon: FileText, title: "Document drafting", desc: "Generate contracts, motions, and letters from templates." },
-  { icon: Scale, title: "Contract review", desc: "Flag risky clauses and missing provisions in seconds." },
-  { icon: Search, title: "Legal research", desc: "Find precedent, statutes, and citations across jurisdictions." },
-  { icon: Sparkles, title: "Case summaries", desc: "Distill long case files into briefable executive summaries." },
-  { icon: Calendar, title: "Deadline recommender", desc: "Suggest filing deadlines based on case type and jurisdiction." },
+  {
+    icon: MessageSquare,
+    title: "Client intake assistant",
+    desc: "Auto-screen new clients with tailored questionnaires.",
+  },
+  {
+    icon: FileText,
+    title: "Document drafting",
+    desc: "Generate contracts, motions, and letters from templates.",
+  },
+  {
+    icon: Scale,
+    title: "Contract review",
+    desc: "Flag risky clauses and missing provisions in seconds.",
+  },
+  {
+    icon: Search,
+    title: "Legal research",
+    desc: "Find precedent, statutes, and citations across jurisdictions.",
+  },
+  {
+    icon: Sparkles,
+    title: "Case summaries",
+    desc: "Distill long case files into briefable executive summaries.",
+  },
+  {
+    icon: Calendar,
+    title: "Deadline recommender",
+    desc: "Suggest filing deadlines based on case type and jurisdiction.",
+  },
 ];
 
 function AIPage() {
   return (
     <div>
-      <PageHeader title="AI Assistant" description="Augment your practice with built-in legal AI tools." />
+      <PageHeader
+        title="AI Assistant"
+        description="Augment your practice with built-in legal AI tools."
+      />
       <div className="space-y-6 p-6">
         <div className="rounded-lg border border-border bg-gradient-to-br from-card to-secondary p-6">
           <div className="flex items-center gap-2">

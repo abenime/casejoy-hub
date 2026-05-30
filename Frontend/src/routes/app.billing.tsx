@@ -16,20 +16,32 @@ function BillingPage() {
   const { data: invoices, loading } = useApi(() => api.getInvoices(user!), [user?.id]);
 
   const total = (invoices ?? []).reduce((s, i) => s + i.amount, 0);
-  const paid = (invoices ?? []).filter((i) => i.status === "paid").reduce((s, i) => s + i.amount, 0);
+  const paid = (invoices ?? [])
+    .filter((i) => i.status === "paid")
+    .reduce((s, i) => s + i.amount, 0);
   const outstanding = total - paid;
-  const overdue = (invoices ?? []).filter((i) => i.status === "overdue").reduce((s, i) => s + i.amount, 0);
+  const overdue = (invoices ?? [])
+    .filter((i) => i.status === "overdue")
+    .reduce((s, i) => s + i.amount, 0);
 
   return (
     <div>
       <PageHeader
         title={isClient ? "Payments" : "Billing & Finance"}
-        description={isClient ? "Pay invoices and view payment history." : "Time, invoices, and revenue tracking."}
+        description={
+          isClient
+            ? "Pay invoices and view payment history."
+            : "Time, invoices, and revenue tracking."
+        }
         actions={
           !isClient ? (
-            <Button><Plus className="mr-2 h-4 w-4" /> New invoice</Button>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" /> New invoice
+            </Button>
           ) : (
-            <Button><CreditCard className="mr-2 h-4 w-4" /> Pay outstanding</Button>
+            <Button>
+              <CreditCard className="mr-2 h-4 w-4" /> Pay outstanding
+            </Button>
           )
         }
       />
@@ -56,7 +68,11 @@ function BillingPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {loading && (
-                <tr><td colSpan={7} className="px-5 py-10 text-center text-muted-foreground">Loading…</td></tr>
+                <tr>
+                  <td colSpan={7} className="px-5 py-10 text-center text-muted-foreground">
+                    Loading…
+                  </td>
+                </tr>
               )}
               {(invoices ?? []).map((i: any) => (
                 <tr key={i.id} className="transition-colors hover:bg-secondary/40">
@@ -76,7 +92,9 @@ function BillingPage() {
                     {isClient && i.status !== "paid" ? (
                       <Button size="sm">Pay</Button>
                     ) : (
-                      <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon">
+                        <Download className="h-4 w-4" />
+                      </Button>
                     )}
                   </td>
                 </tr>

@@ -58,8 +58,18 @@ function FirmDashboard({ user }: { user: { name: string } }) {
             trend={{ value: `+${analytics?.revenue.growth ?? 0}%`, positive: true }}
             hint="vs last month"
           />
-          <StatCard label="Active cases" value={String(activeCases)} icon={Briefcase} hint="across practice areas" />
-          <StatCard label="Open tasks" value={String(openTasks)} icon={CheckCircle2} hint="assigned to team" />
+          <StatCard
+            label="Active cases"
+            value={String(activeCases)}
+            icon={Briefcase}
+            hint="across practice areas"
+          />
+          <StatCard
+            label="Open tasks"
+            value={String(openTasks)}
+            icon={CheckCircle2}
+            hint="assigned to team"
+          />
           <StatCard
             label="Win rate"
             value={analytics ? `${analytics.cases.winRate}%` : "—"}
@@ -129,7 +139,9 @@ function FirmDashboard({ user }: { user: { name: string } }) {
         {/* Team productivity */}
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="rounded-lg border border-border bg-card p-5">
-            <h2 className="text-sm font-semibold text-foreground">Team productivity (billable hrs)</h2>
+            <h2 className="text-sm font-semibold text-foreground">
+              Team productivity (billable hrs)
+            </h2>
             <div className="mt-4 space-y-4">
               {(analytics?.lawyerProductivity ?? []).map((l) => {
                 const pct = Math.min(100, (l.billable / l.target) * 100);
@@ -158,7 +170,13 @@ function FirmDashboard({ user }: { user: { name: string } }) {
             <h2 className="text-sm font-semibold text-foreground">Practice area mix</h2>
             <div className="mt-4 space-y-2.5">
               {(analytics?.practiceBreakdown ?? []).map((p, i) => {
-                const colors = ["bg-chart-1", "bg-accent", "bg-chart-3", "bg-success", "bg-chart-5"];
+                const colors = [
+                  "bg-chart-1",
+                  "bg-accent",
+                  "bg-chart-3",
+                  "bg-success",
+                  "bg-chart-5",
+                ];
                 return (
                   <div key={p.name} className="flex items-center gap-3">
                     <span className={`h-2.5 w-2.5 rounded-sm ${colors[i % colors.length]}`} />
@@ -182,7 +200,9 @@ function ClientDashboard() {
   const { data: invoices } = useApi(() => api.getInvoices(user!), []);
   const { data: documents } = useApi(() => api.getDocuments(user!), []);
 
-  const outstanding = (invoices ?? []).filter((i) => i.status !== "paid").reduce((s, i) => s + i.amount, 0);
+  const outstanding = (invoices ?? [])
+    .filter((i) => i.status !== "paid")
+    .reduce((s, i) => s + i.amount, 0);
   const upcoming = (events ?? []).slice(0, 3);
 
   return (
@@ -202,7 +222,11 @@ function ClientDashboard() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Active matters" value={String(cases?.length ?? 0)} icon={Briefcase} />
           <StatCard label="Documents" value={String(documents?.length ?? 0)} icon={FileText} />
-          <StatCard label="Upcoming events" value={String(events?.length ?? 0)} icon={CalendarIcon} />
+          <StatCard
+            label="Upcoming events"
+            value={String(events?.length ?? 0)}
+            icon={CalendarIcon}
+          />
           <StatCard
             label="Outstanding"
             value={`$${(outstanding / 1000).toFixed(1)}k`}
@@ -230,7 +254,8 @@ function ClientDashboard() {
                   </p>
                   <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-3.5 w-3.5" />
-                    Next: <span className="font-medium text-foreground">{c.nextDeadline ?? "—"}</span>
+                    Next:{" "}
+                    <span className="font-medium text-foreground">{c.nextDeadline ?? "—"}</span>
                   </div>
                 </div>
               ))}

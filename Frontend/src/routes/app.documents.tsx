@@ -19,7 +19,11 @@ function DocumentsPage() {
     <div>
       <PageHeader
         title={isClient ? "Document vault" : "Documents"}
-        description={isClient ? "Securely upload, download, and sign documents." : "Templates, evidence, and case files."}
+        description={
+          isClient
+            ? "Securely upload, download, and sign documents."
+            : "Templates, evidence, and case files."
+        }
         actions={
           <>
             {!isClient && <Button variant="outline">Templates</Button>}
@@ -45,7 +49,11 @@ function DocumentsPage() {
             </thead>
             <tbody className="divide-y divide-border">
               {loading && (
-                <tr><td colSpan={7} className="px-5 py-10 text-center text-muted-foreground">Loading…</td></tr>
+                <tr>
+                  <td colSpan={7} className="px-5 py-10 text-center text-muted-foreground">
+                    Loading…
+                  </td>
+                </tr>
               )}
               {(documents ?? []).map((d: any) => (
                 <tr key={d.id} className="transition-colors hover:bg-secondary/40">
@@ -58,7 +66,9 @@ function DocumentsPage() {
                     </div>
                   </td>
                   <td className="px-5 py-3.5">
-                    <Badge variant="outline" className="capitalize">{d.type}</Badge>
+                    <Badge variant="outline" className="capitalize">
+                      {d.type}
+                    </Badge>
                   </td>
                   <td className="px-5 py-3.5 text-muted-foreground">{d.size}</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{d.uploadedBy}</td>
@@ -73,7 +83,9 @@ function DocumentsPage() {
                     )}
                   </td>
                   <td className="px-5 py-3.5 text-right">
-                    <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon">
+                      <Download className="h-4 w-4" />
+                    </Button>
                   </td>
                 </tr>
               ))}
