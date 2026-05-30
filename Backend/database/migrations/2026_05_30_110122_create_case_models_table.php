@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('stage');
             $table->string('status');
             $table->string('lead');
+            $table->string('court')->nullable();
+            $table->string('judge')->nullable();
+            $table->date('hearingDate')->nullable();
             $table->date('openedAt');
             $table->date('nextDeadline')->nullable();
             $table->decimal('billable', 10, 2)->default(0);

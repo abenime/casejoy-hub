@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('due')->nullable();
             $table->string('priority');
             $table->string('status');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

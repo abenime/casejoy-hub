@@ -267,8 +267,12 @@ function ClientsPage() {
     ];
   };
 
+  console.log("CLIENT DATA", client, "NOTES TYPE", typeof client?.notes);
+
+  if (!client) return <div>Loading...</div>;
+
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex h-full flex-col">
       <PageHeader
         title="CRM & Clients"
         description="Manage client directory, track cases, communications, financials, and internal notes."
