@@ -28,7 +28,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-<<<<<<< HEAD
 export function RBACGuard({
   allowedRoles,
   children,
@@ -74,7 +73,7 @@ class AppErrorBoundary extends React.Component<{ children: ReactNode }, { hasErr
     return this.props.children;
   }
 }
-=======
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -83,7 +82,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
->>>>>>> 3446b279072cb1829ec79155b7ce90beec87a6ee
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
