@@ -68,6 +68,8 @@ export function StatCard({
 export function statusColor(status: string): string {
   const map: Record<string, string> = {
     active: "bg-success/10 text-success border-success/20",
+    pending: "bg-warning/15 text-warning border-warning/30",
+    closed: "bg-muted text-muted-foreground border-border",
     archived: "bg-muted text-muted-foreground border-border",
     todo: "bg-secondary text-secondary-foreground border-border",
     in_progress: "bg-chart-3/10 text-chart-3 border-chart-3/20",
