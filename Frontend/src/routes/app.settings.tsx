@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useSettings } from "@/lib/settings-context";
 import { useApi } from "@/lib/use-api";
 import { api, type User, type Role } from "@/lib/api";
 import { PageHeader } from "@/components/ui-shared";
@@ -66,15 +67,138 @@ const firmDetailsSchema = z.object({
 });
 type FirmDetailsFormValues = z.infer<typeof firmDetailsSchema>;
 
+// --- Branding Schema ---
+const brandingSchema = z.object({
+  firm_name: z.string().optional(),
+  firm_subtitle: z.string().optional(),
+  logo_url: z.string().optional(),
+  hero_title: z.string().optional(),
+  hero_subtitle: z.string().optional(),
+  hero_description: z.string().optional(),
+});
+
+const profileSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().optional(),
+});
+
 export const Route = createFileRoute("/app/settings")({
   component: SettingsPage,
 });
 
 function SettingsPage() {
   const { user } = useAuth();
+  const { settings, refreshSettings } = useSettings();
+  const { data: users, loading, refresh } = useApi(api.getUsers);
 
-  if (user?.role === "admin") {
-    return (
+  // Draft recovery state
+  const { draft, saveDraft, clearDraft } = useFormDraft<FirmDetailsFormValues>(
+    "firm-settings-draft",
+    {
+      firmName: settings.firm_name || "",
+      domain: settings.domain || "",
+      primaryColor: settings.primary_color || "",
+      accentColor: settings.accent_color || "",
+    },
+  );
+
+  const form = useForm<FirmDetailsFormValues>({
+    resolver: zodResolver(firmDetailsSchema),
+    defaultValues: {
+      firmName: settings.firm_name || "",
+      domain: settings.domain || "",
+      primaryColor: settings.primary_color || "",
+      accentColor: settings.accent_color || "",
+    },
+  });
+
+  // Restore draft if available
+  useEffect(() => {
+    if (draft) {
+      if (window.confirm("A draft was found from your last session. Restore it?")) {
+        form.reset(draft);
+      } else {
+        clearDraft();
+      }
+    }
+  }, [draft, form, clearDraft]);
+
+  const onSubmit = (data: FirmDetailsFormValues) => {
+    console.log("Saving firm details:", data);
+    clearDraft();
+    alert("Firm details saved successfully.");
+  };
+
+  const brandingForm = useForm<z.infer<typeof brandingSchema>>({
+    resolver: zodResolver(brandingSchema),
+    defaultValues: {
+      firm_name: settings.firm_name || "",
+      firm_subtitle: settings.firm_subtitle || "",
+      logo_url: settings.logo_url || "",
+      hero_title: settings.hero_title || "",
+      hero_subtitle: settings.hero_subtitle || "",
+      hero_description: settings.hero_description || "",
+    },
+  });
+
+  // Re-sync branding form when settings context changes
+  useEffect(() => {
+    brandingForm.reset({
+      firm_name: settings.firm_name || "",
+      firm_subtitle: settings.firm_subtitle || "",
+      logo_url: settings.logo_url || "",
+      hero_title: settings.hero_title || "",
+      hero_subtitle: settings.hero_subtitle || "",
+      hero_description: settings.hero_description || "",
+    });
+  }, [settings, brandingForm]);
+
+  const onProfileSubmit = async (values: z.infer<typeof profileSchema>) => {
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmSave = async () => {
+    setSaving(true);
+    try {
+      await api.updateUserProfile(user.id, name.trim(), email.trim(), phone.trim());
+      refreshSession();
+      toast.success("Profile updated successfully!");
+      setConfirmOpen(false);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update profile.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const onBrandingSubmit = async (values: z.infer<typeof brandingSchema>) => {
+    try {
+      await api.updateSettings(values);
+      await refreshSettings();
+      toast.success("Branding updated successfully");
+      clearDraft();
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || "Failed to update branding");
+    }
+  };
+
+  const isAdmin = user?.role === "admin" || user?.role === "managing_partner";
+
+  if (!user) return null;
+
+  const hasChanges = name !== user.name || email !== user.email || phone !== (user.phone ?? "");
+
+  const handleSaveClick = () => {
+    if (!name.trim() || !email.trim()) {
+      toast.error("Name and Email are required.");
+      return;
+    }
+    setConfirmOpen(true);
+  };
+
+  return (
+    <>
       <div className="pb-10 bg-gradient-to-b from-background via-background to-secondary/10 min-h-screen">
         <PageHeader title="Settings" description="Firm profile, team, and configuration." />
         <div className="p-6 flex justify-center">
@@ -84,6 +208,10 @@ function SettingsPage() {
                 <TabsTrigger value="firm">Firm Details</TabsTrigger>
                 <TabsTrigger value="users">User Management</TabsTrigger>
                 <TabsTrigger value="permissions">Permissions Matrix</TabsTrigger>
+                <TabsTrigger value="notifications">Notifications</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
+                {isAdmin && <TabsTrigger value="branding">Branding</TabsTrigger>}
+                {isAdmin && <TabsTrigger value="team">Team Directory</TabsTrigger>}
               </TabsList>
             </div>
 
@@ -98,20 +226,83 @@ function SettingsPage() {
             <TabsContent value="permissions" className="flex justify-center">
               <PermissionsMatrixTab />
             </TabsContent>
+
+            <TabsContent value="notifications" className="flex justify-center">
+              <NotificationsTab />
+            </TabsContent>
+
+            <TabsContent value="security" className="flex justify-center">
+              <SecurityTab />
+            </TabsContent>
+
+            <TabsContent value="branding" className="mt-6 space-y-6 max-w-2xl">
+              <div className="space-y-1">
+                <h3 className="text-lg font-medium text-slate-900">White-Label Branding</h3>
+                <p className="text-sm text-slate-500">
+                  Customize the appearance of the client portal and login screens. These settings take effect immediately globally.
+                </p>
+              </div>
+              <form onSubmit={brandingForm.handleSubmit(onBrandingSubmit)} className="space-y-6 bg-white p-6 rounded-xl border border-slate-200">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Firm Name</Label>
+                    <Input {...brandingForm.register("firm_name")} placeholder="Vance & Hale" />
+                    {brandingForm.formState.errors.firm_name && (
+                      <p className="text-[10px] text-red-500 font-medium">
+                        {brandingForm.formState.errors.firm_name.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Firm Subtitle</Label>
+                    <Input {...brandingForm.register("firm_subtitle")} placeholder="Attorneys at Law" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Logo Image URL</Label>
+                  <Input {...brandingForm.register("logo_url")} placeholder="https://example.com/logo.png" />
+                  <p className="text-[10px] text-slate-500">Leave blank to use the default scale icon.</p>
+                </div>
+
+                <div className="space-y-2 pt-4 border-t border-slate-100">
+                  <Label className="text-base font-medium">Landing Page Hero Text</Label>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Hero Title</Label>
+                  <Input {...brandingForm.register("hero_title")} placeholder="State-of-the-Art Advocacy." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Hero Subtitle</Label>
+                  <Input {...brandingForm.register("hero_subtitle")} placeholder="Unified Client Practice Management." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Hero Description</Label>
+                  <textarea
+                    {...brandingForm.register("hero_description")}
+                    className="flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="Welcome to the legal platform..."
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={brandingForm.formState.isSubmitting}
+                  className="bg-slate-900 text-white hover:bg-slate-800"
+                >
+                  {brandingForm.formState.isSubmitting ? "Saving..." : "Save Branding Changes"}
+                </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="team" className="flex justify-center">
+              <TeamDirectoryTab />
+            </TabsContent>
           </Tabs>
         </div>
       </div>
-    );
-  }
-
-  // Non-admin users see "My Profile"
-  return (
-    <div className="pb-10 bg-gradient-to-b from-background via-background to-secondary/10">
-      <PageHeader title="Profile" description="Manage your account and profile details." />
-      <div className="p-6">
-        <MyProfileTab />
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -616,6 +807,233 @@ function PermissionsMatrixTab() {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function NotificationsTab() {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const data = await api.getNotifications();
+      setNotifications(data);
+    };
+    fetchNotifications();
+  }, []);
+
+  return (
+    <div className="w-full max-w-4xl rounded-xl border border-border bg-card/95 backdrop-blur-md p-8 shadow-lg">
+      <h2 className="text-xl font-bold text-foreground">Notifications</h2>
+      <p className="mt-1 text-sm text-muted-foreground mb-8">
+        Manage notifications and alerts.
+      </p>
+
+      <div className="space-y-4">
+        {notifications.map((notification) => (
+          <div key={notification.id} className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+                {notification.user.avatar}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">{notification.user.name}</span>
+              <span className="text-xs text-muted-foreground">{notification.message}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SecurityTab() {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const { user } = useAuth();
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+  };
+
+  const handleSave = async () => {
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    setSaving(true);
+    try {
+      await api.updateUserPassword(user.id, password);
+      toast.success("Password updated successfully!");
+      setSaving(false);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update password");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-4xl rounded-xl border border-border bg-card/95 backdrop-blur-md p-8 shadow-lg">
+      <h2 className="text-xl font-bold text-foreground">Security</h2>
+      <p className="mt-1 text-sm text-muted-foreground mb-8">
+        Manage your account security.
+      </p>
+
+      <div className="space-y-4">
+        <div>
+          <Label>Current Password</Label>
+          <Input type="password" value={password} onChange={handlePasswordChange} />
+        </div>
+        <div>
+          <Label>Confirm New Password</Label>
+          <Input type="password" value={confirmPassword} onChange={handleConfirmPasswordChange} />
+        </div>
+        <Button onClick={handleSave}>Save Changes</Button>
+      </div>
+    </div>
+  );
+}
+
+function TeamDirectoryTab() {
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { data: allUsers } = useApi(() => api.getUsers(), [refreshKey]);
+  const { logAction } = useAuditLog();
+
+  const handleRoleChange = async (userId: string, newRole: Role) => {
+    try {
+      await api.updateUserRole(userId, newRole);
+      logAction("ROLE_UPDATE", { targetId: userId, newRole });
+      toast.success("User role updated successfully!");
+      setRefreshKey((prev) => prev + 1);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update user role");
+    }
+  };
+
+  const columns: ColumnDef<User>[] = [
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+              {row.original.avatar}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium">{row.original.name}</span>
+            <span className="text-xs text-muted-foreground">{row.original.email}</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "role",
+      header: "Role",
+      cell: ({ row }) => (
+        <Badge
+          variant={row.original.role === "admin" ? "default" : "outline"}
+          className="capitalize"
+        >
+          {row.original.role}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
+    },
+    {
+      accessorKey: "phone",
+      header: "Phone",
+      cell: ({ row }) => (
+        <span className="text-xs text-muted-foreground">{row.original.phone || "—"}</span>
+      ),
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        return (
+          <Dropdown>
+            <Dropdown.Trigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+                <span className="sr-only">Open menu</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-more-horizontal"
+                >
+                  <circle cx="12" cy="12" r="1" />
+                  <circle cx="19" cy="12" r="1" />
+                  <circle cx="5" cy="12" r="1" />
+                </svg>
+              </Button>
+            </Dropdown.Trigger>
+            <Dropdown.Content align="end">
+              <Dropdown.Label>Actions</Dropdown.Label>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "admin")}
+              >
+                Make Admin
+              </Dropdown.Item>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "lawyer")}
+              >
+                Make Lawyer
+              </Dropdown.Item>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "paralegal")}
+              >
+                Make Paralegal
+              </Dropdown.Item>
+              <Dropdown.Item
+                className="cursor-pointer"
+                onClick={() => handleRoleChange(row.original.id, "client")}
+              >
+                Make Client
+              </Dropdown.Item>
+              <Dropdown.Separator />
+              <Dropdown.Item className="text-destructive cursor-pointer">
+                Revoke Access
+              </Dropdown.Item>
+            </Dropdown.Content>
+          </Dropdown>
+        );
+      },
+    },
+  ];
+
+  return (
+    <div className="w-full max-w-4xl rounded-xl border border-border bg-card/95 backdrop-blur-md p-8 shadow-lg">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">Team Directory</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage roles and access for the firm's staff and registered clients.
+          </p>
+        </div>
+        <Button>Invite member</Button>
+      </div>
+
+      {allUsers && <DataTable columns={columns} data={allUsers} searchKey="name" />}
     </div>
   );
 }

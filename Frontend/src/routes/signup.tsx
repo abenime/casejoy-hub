@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Scale, Loader2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useSettings } from "@/lib/settings-context";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/signup")({
 
 function SignupPage() {
   const { user, login, loading: authLoading } = useAuth();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -69,9 +71,13 @@ function SignupPage() {
 
       <div className="w-full max-w-sm space-y-8 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
         <div className="flex flex-col items-center text-center space-y-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-white shadow-sm">
-            <Scale className="h-6 w-6" />
-          </div>
+          {settings.logo_url ? (
+            <img src={settings.logo_url} alt="Firm Logo" className="h-12 object-contain rounded-xl" />
+          ) : (
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-white shadow-sm">
+              <Scale className="h-6 w-6" />
+            </div>
+          )}
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Create an account</h2>
             <p className="text-sm text-slate-500">Register for your client account.</p>

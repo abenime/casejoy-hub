@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useSettings } from "@/lib/settings-context";
 import { Scale, ShieldCheck, MessageSquareCode, CalendarDays, FileCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -9,8 +10,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { settings, loading: settingsLoading } = useSettings();
   const navigate = useNavigate();
+
+  const loading = authLoading || settingsLoading;
 
   useEffect(() => {
     if (loading) return;
@@ -36,15 +40,19 @@ function Index() {
       <header className="sticky top-0 z-50 pt-4">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3 select-none">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-slate-900 text-white border border-slate-800">
-              <Scale className="h-5 w-5" />
-            </div>
+            {settings.logo_url ? (
+              <img src={settings.logo_url} alt="Firm Logo" className="h-10 object-contain rounded-md" />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-slate-900 text-white border border-slate-800">
+                <Scale className="h-5 w-5" />
+              </div>
+            )}
             <div>
               <p className="text-sm font-bold tracking-widest text-slate-900 uppercase font-serif">
-                Vance &amp; Hale
+                {settings.firm_name || "Vance & Hale"}
               </p>
               <p className="text-[10px] text-slate-500 tracking-wider font-semibold uppercase">
-                Attorneys at Law
+                {settings.firm_subtitle || "Attorneys at Law"}
               </p>
             </div>
           </div>
@@ -73,17 +81,16 @@ function Index() {
         </div>
 
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-slate-900 max-w-4xl leading-[1.15] font-serif">
-          State-of-the-Art Advocacy.
+          {settings.hero_title || "State-of-the-Art Advocacy."}
           <br />
           <span className="text-slate-700">
-            Unified Client Practice Management.
+            {settings.hero_subtitle || "Unified Client Practice Management."}
           </span>
         </h1>
 
-        <p className="mt-6 text-sm sm:text-base text-slate-600 max-w-2xl leading-relaxed">
-          Welcome to the Vance &amp; Hale legal platform. Access real-time case analytics, securely
-          review and sign legal pleadings on our multi-page reader desk, exchange encrypted
-          communications, and manage trust accounts.
+        <p className="mt-6 text-sm sm:text-base text-slate-600 max-w-2xl leading-relaxed whitespace-pre-wrap">
+          {settings.hero_description ||
+            "Welcome to the Vance & Hale legal platform. Access real-time case analytics, securely review and sign legal pleadings on our multi-page reader desk, exchange encrypted communications, and manage trust accounts."}
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
