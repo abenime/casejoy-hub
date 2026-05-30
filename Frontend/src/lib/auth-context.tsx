@@ -1,55 +1,149 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useReducer, type ReactNode } from "react";
 import { api, type User } from "@/lib/api";
 
-interface AuthContextValue {
+type AuthStatus = "idle" | "loading" | "authenticated" | "unauthenticated";
+
+interface AuthState {
   user: User | null;
-  loading: boolean;
+  status: AuthStatus;
+  isAuthenticated: boolean;
+  error: string | null;
+}
+
+type AuthAction =
+  | { type: "LOGIN_REQUEST" }
+  | { type: "LOGIN_SUCCESS"; payload: User }
+  | { type: "LOGIN_FAILURE"; payload: string }
+  | { type: "LOGOUT" }
+  | { type: "RESTORE_SESSION"; payload: User };
+
+const initialState: AuthState = {
+  user: null,
+  status: "idle",
+  isAuthenticated: false,
+  error: null,
+};
+
+function authReducer(state: AuthState, action: AuthAction): AuthState {
+  switch (action.type) {
+    case "LOGIN_REQUEST":
+      return { ...state, status: "loading", error: null };
+    case "LOGIN_SUCCESS":
+    case "RESTORE_SESSION":
+      return {
+        ...state,
+        status: "authenticated",
+        isAuthenticated: true,
+        user: action.payload,
+        error: null,
+      };
+    case "LOGIN_FAILURE":
+      return {
+        ...state,
+        status: "unauthenticated",
+        isAuthenticated: false,
+        user: null,
+        error: action.payload,
+      };
+    case "LOGOUT":
+      return {
+        ...state,
+        status: "unauthenticated",
+        isAuthenticated: false,
+        user: null,
+        error: null,
+      };
+    default:
+      return state;
+  }
+}
+
+interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<User | null>;
   logout: () => void;
+  hasRole: (allowedRoles: string[]) => boolean;
   isFirm: boolean;
   isClient: boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 const STORAGE_KEY = "lawfirm.auth.user";
+// Adding a sync key to broadcast logout across tabs
+const SYNC_LOGOUT_KEY = "lawfirm.auth.logout_sync";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // Initialize session and set up multi-tab sync
   useEffect(() => {
     try {
       const raw = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
-      if (raw) setUser(JSON.parse(raw));
+      if (raw) {
+        const parsedUser = JSON.parse(raw);
+        // Basic longevity check: Ensure role exists. In a real app, verify JWT expiry here.
+        if (parsedUser && parsedUser.role) {
+          dispatch({ type: "RESTORE_SESSION", payload: parsedUser });
+        } else {
+          dispatch({ type: "LOGOUT" });
+        }
+      } else {
+        dispatch({ type: "LOGOUT" });
+      }
     } catch {
-      /* ignore */
+      dispatch({ type: "LOGOUT" });
     }
-    setLoading(false);
+
+    // Secure local session sync across browser tabs using a storage event listener.
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === SYNC_LOGOUT_KEY) {
+        dispatch({ type: "LOGOUT" });
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const login = async (email: string, password: string) => {
-    const found = await api.login(email, password);
-    if (found) {
-      setUser(found);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(found));
+    dispatch({ type: "LOGIN_REQUEST" });
+    try {
+      const found = await api.login(email, password);
+      if (found) {
+        dispatch({ type: "LOGIN_SUCCESS", payload: found });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(found));
+        return found;
+      } else {
+        dispatch({ type: "LOGIN_FAILURE", payload: "Invalid email or password" });
+        return null;
+      }
+    } catch (err: any) {
+      dispatch({ type: "LOGIN_FAILURE", payload: err.message || "Login failed" });
+      return null;
     }
-    return found;
   };
 
   const logout = () => {
-    setUser(null);
+    dispatch({ type: "LOGOUT" });
     localStorage.removeItem(STORAGE_KEY);
+    // Broadcast logout to other tabs
+    localStorage.setItem(SYNC_LOGOUT_KEY, Date.now().toString());
+  };
+
+  const hasRole = (allowedRoles: string[]) => {
+    if (!state.isAuthenticated || !state.user) return false;
+    return allowedRoles.includes(state.user.role);
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        loading,
+        ...state,
         login,
         logout,
-        isFirm: !!user && user.role !== "client",
-        isClient: user?.role === "client",
+        hasRole,
+        isFirm: !!state.user && state.user.role !== "client",
+        isClient: state.user?.role === "client",
       }}
     >
       {children}
