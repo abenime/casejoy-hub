@@ -229,7 +229,7 @@ function ClientsPage() {
         return d;
       }),
     );
-    setSelectedDoc((prev) => (prev ? { ...prev, signed: true } : null));
+    setSelectedDoc((prev: any) => (prev ? { ...prev, signed: true } : null));
     toast.success("Document signed successfully!");
   };
 

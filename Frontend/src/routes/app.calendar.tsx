@@ -543,7 +543,7 @@ function CalendarPage() {
                     preparation meeting is recommended.
                   </p>
                   <Button
-                    size="xs"
+                    size="sm"
                     onClick={() =>
                       handleAutoSchedule(
                         "Holloway Pre-trial Prep",
@@ -565,7 +565,7 @@ function CalendarPage() {
                     consultation recommended.
                   </p>
                   <Button
-                    size="xs"
+                    size="sm"
                     onClick={() =>
                       handleAutoSchedule(
                         "Estate Planning Consultation",
