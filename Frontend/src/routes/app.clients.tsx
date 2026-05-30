@@ -283,7 +283,7 @@ function ClientsPage() {
                 <Plus className="mr-2 h-4 w-4" /> Add client
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[500px] border-border bg-card/95 backdrop-blur-md">
               <DialogHeader>
                 <DialogTitle>Add New Client</DialogTitle>
                 <DialogDescription>
@@ -1118,7 +1118,7 @@ function ClientsPage() {
       {/* CASE DETAILS DIALOG */}
       {selectedCase && (
         <Dialog open={caseDialogOpen} onOpenChange={setCaseDialogOpen}>
-          <DialogContent className="sm:max-w-[550px]">
+          <DialogContent className="sm:max-w-[550px] border-border bg-card/95 backdrop-blur-md">
             <DialogHeader>
               <div className="flex items-center justify-between pr-4">
                 <Badge
@@ -1253,7 +1253,7 @@ function ClientsPage() {
       {/* DOCUMENT PREVIEW DIALOG */}
       {selectedDoc && (
         <Dialog open={docDialogOpen} onOpenChange={setDocDialogOpen}>
-          <DialogContent className="sm:max-w-[620px]">
+          <DialogContent className="sm:max-w-[620px] border-border bg-card/95 backdrop-blur-md">
             <DialogHeader>
               <div className="flex items-center justify-between pr-4">
                 <Badge

@@ -15,7 +15,8 @@ const DEMO_ACCOUNTS = [
   { label: "Managing Partner", email: "admin@firm.com", password: "admin" },
   { label: "Senior Associate", email: "lawyer@firm.com", password: "lawyer" },
   { label: "Paralegal", email: "paralegal@firm.com", password: "paralegal" },
-  { label: "Client Portal", email: "client@firm.com", password: "client" },
+  { label: "Client Portal - James", email: "client@firm.com", password: "client" },
+  { label: "Client Portal - Ana", email: "client2@firm.com", password: "client" },
 ];
 
 function LoginPage() {

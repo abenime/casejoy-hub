@@ -314,7 +314,7 @@ function ClientDashboard() {
                       Upload Requested Document
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
+                  <DialogContent className="sm:max-w-[425px] border-border bg-card/95 backdrop-blur-md">
                     <DialogHeader>
                       <DialogTitle>Upload Document</DialogTitle>
                       <DialogDescription>
@@ -418,7 +418,7 @@ function ClientDashboard() {
                       Make a Payment
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
+                  <DialogContent className="sm:max-w-[425px] border-border bg-card/95 backdrop-blur-md">
                     <DialogHeader>
                       <DialogTitle>Make a Payment</DialogTitle>
                       <DialogDescription>
@@ -511,7 +511,7 @@ function ClientDashboard() {
                       Schedule Appointment
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
+                  <DialogContent className="sm:max-w-[425px] border-border bg-card/95 backdrop-blur-md">
                     <DialogHeader>
                       <DialogTitle>Request Appointment</DialogTitle>
                       <DialogDescription>

@@ -95,7 +95,7 @@ function MessagesPage() {
                 New Message
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] border-border bg-card/95 backdrop-blur-md">
               <DialogHeader>
                 <DialogTitle>New Message</DialogTitle>
                 <DialogDescription>

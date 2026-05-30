@@ -1148,7 +1148,7 @@ function CasesPage() {
       </div>
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl border-border bg-card/95 backdrop-blur-md">
           <DialogHeader>
             <DialogTitle>New case</DialogTitle>
             <DialogDescription>

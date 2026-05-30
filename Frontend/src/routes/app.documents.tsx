@@ -14,6 +14,7 @@ import {
   Eye,
   Check,
   FileCheck,
+  Search,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApi } from "@/lib/use-api";
@@ -77,6 +78,7 @@ function DocumentsPage() {
   const [renameValue, setRenameValue] = useState("");
   const [signedDocIds, setSignedDocIds] = useState<string[]>([]);
   const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   const MOCK_TEMPLATES = [
     { id: "tpl_1", name: "Client Intake Form", category: "Onboarding" },
@@ -133,6 +135,11 @@ function DocumentsPage() {
     ? (documents ?? []).filter((d: DocumentItem) => d.caseId === currentFolder)
     : (documents ?? []);
 
+  const searchedDocs = displayedDocs.filter((d: DocumentItem) => 
+    d.name.toLowerCase().includes(search.toLowerCase()) || 
+    d.type.toLowerCase().includes(search.toLowerCase())
+  );
+
   const handleRename = () => {
     toast.success(`Document renamed to ${renameValue}`);
     setRenameDoc(null);
@@ -177,27 +184,39 @@ function DocumentsPage() {
         }
       />
       <div className="flex-1 p-6 flex flex-col gap-4">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              {currentFolder ? (
-                <BreadcrumbLink onClick={() => setCurrentFolder(null)} className="cursor-pointer">
-                  All Documents
-                </BreadcrumbLink>
-              ) : (
-                <BreadcrumbPage>All Documents</BreadcrumbPage>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                {currentFolder ? (
+                  <BreadcrumbLink onClick={() => setCurrentFolder(null)} className="cursor-pointer">
+                    All Documents
+                  </BreadcrumbLink>
+                ) : (
+                  <BreadcrumbPage>All Documents</BreadcrumbPage>
+                )}
+              </BreadcrumbItem>
+              {currentFolder && (
+                <>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>{currentFolder}</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </>
               )}
-            </BreadcrumbItem>
-            {currentFolder && (
-              <>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{currentFolder}</BreadcrumbPage>
-                </BreadcrumbItem>
-              </>
-            )}
-          </BreadcrumbList>
-        </Breadcrumb>
+            </BreadcrumbList>
+          </Breadcrumb>
+          
+          <div className="relative w-full sm:w-72">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search documents..."
+              className="h-9 pl-9 bg-card"
+            />
+          </div>
+        </div>
 
         <div
           {...getRootProps()}
@@ -260,7 +279,7 @@ function DocumentsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {displayedDocs.map((d: DocumentItem) => (
+                    {searchedDocs.map((d: DocumentItem) => (
                       <tr key={d.id} className="transition-colors hover:bg-secondary/40">
                         <td className="px-5 py-3.5">
                           <div
@@ -347,7 +366,7 @@ function DocumentsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                {displayedDocs.map((d: DocumentItem) => (
+                {searchedDocs.map((d: DocumentItem) => (
                   <div
                     key={d.id}
                     className="group relative rounded-lg border border-border bg-card p-4 hover:border-primary"
@@ -425,7 +444,7 @@ function DocumentsPage() {
       {/* Preview Dialog */}
       <Dialog open={!!previewDoc} onOpenChange={(o) => !o && setPreviewDoc(null)}>
         {previewDoc && (
-          <DialogContent className="sm:max-w-[620px]">
+          <DialogContent className="sm:max-w-[620px] border-border bg-card/95 backdrop-blur-md">
             <DialogHeader>
               <div className="flex items-center justify-between pr-4">
                 <Badge
@@ -550,8 +569,8 @@ function DocumentsPage() {
       </Dialog>
 
       {/* Rename Dialog */}
-      <Dialog open={!!renameDoc} onOpenChange={(o) => !o && setRenameDoc(null)}>
-        <DialogContent>
+      <Dialog open={!!renameDoc} onOpenChange={(open) => !open && setRenameDoc(null)}>
+        <DialogContent className="border-border bg-card/95 backdrop-blur-md">
           <DialogHeader>
             <DialogTitle>Rename Document</DialogTitle>
           </DialogHeader>

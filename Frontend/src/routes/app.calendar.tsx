@@ -13,6 +13,12 @@ import {
   FileText,
   Trash2,
   CheckCircle2,
+  Filter,
+  MapPin,
+  Video,
+  AlignLeft,
+  Calendar as CalendarIcon,
+  Search,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApi } from "@/lib/use-api";
@@ -175,9 +181,14 @@ function CalendarPage() {
   };
 
   // Filter events
+  const [search, setSearch] = useState("");
   const filteredEvents = events.filter((e) => {
     const typeEnabled = filterTypes[e.type as keyof typeof filterTypes] ?? true;
-    return typeEnabled;
+    const matchesSearch = search === "" ||
+      e.title.toLowerCase().includes(search.toLowerCase()) ||
+      (e.notes || "").toLowerCase().includes(search.toLowerCase());
+
+    return typeEnabled && matchesSearch;
   });
 
   // Check if dates match (ignoring time)
@@ -315,138 +326,22 @@ function CalendarPage() {
             : "Manage firm schedule, track court trials, client hearings, and caseload deadlines."
         }
         actions={
-          !isClient && (
-            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-              <DialogTrigger asChild>
-                <Button className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 transition-all font-medium">
-                  <Plus className="mr-2 h-4 w-4" /> New event
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[480px]">
-                <DialogHeader>
-                  <DialogTitle>Schedule New Event</DialogTitle>
-                  <DialogDescription>
-                    Fill in details to book a hearing, meeting, or filing deadline.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleAddEventSubmit} className="space-y-4 pt-2">
-                  <div className="space-y-1">
-                    <Label htmlFor="title">Event Title</Label>
-                    <Input
-                      id="title"
-                      placeholder="e.g. Prep meeting with client"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <Label htmlFor="type">Event Type</Label>
-                      <Select
-                        value={formData.type}
-                        onValueChange={(val) => setFormData({ ...formData, type: val })}
-                      >
-                        <SelectTrigger id="type">
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="court">Court Hearing</SelectItem>
-                          <SelectItem value="meeting">Client Meeting</SelectItem>
-                          <SelectItem value="deadline">Filing Deadline</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <Label htmlFor="reminder">Reminder Warning</Label>
-                      <Select
-                        value={formData.reminder}
-                        onValueChange={(val) => setFormData({ ...formData, reminder: val })}
-                      >
-                        <SelectTrigger id="reminder">
-                          <SelectValue placeholder="Select reminder" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">No reminder</SelectItem>
-                          <SelectItem value="15m">15 minutes before</SelectItem>
-                          <SelectItem value="1h">1 hour before</SelectItem>
-                          <SelectItem value="1d">1 day before</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <Label htmlFor="date">Scheduled Date</Label>
-                      <Input
-                        id="date"
-                        type="date"
-                        value={formData.date}
-                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="time">Scheduled Time</Label>
-                      <Input
-                        id="time"
-                        type="time"
-                        value={formData.time}
-                        onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label htmlFor="caseId">Link Matter / Case</Label>
-                    <Select
-                      value={formData.caseId}
-                      onValueChange={(val) => setFormData({ ...formData, caseId: val })}
-                    >
-                      <SelectTrigger id="caseId">
-                        <SelectValue placeholder="Search or select case" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="unassigned">Unassigned (General Event)</SelectItem>
-                        {initialCases?.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.number} — {c.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label htmlFor="notes">Internal Memo</Label>
-                    <Textarea
-                      id="notes"
-                      placeholder="Enter descriptions or agenda guidelines..."
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      rows={2.5}
-                    />
-                  </div>
-
-                  <DialogFooter className="pt-2">
-                    <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="bg-primary text-primary-foreground hover:bg-primary/90"
-                    >
-                      Save Event
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-          )
+          <div className="flex items-center gap-2">
+            <div className="relative hidden sm:block w-48 mr-2">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search calendar..."
+                className="h-9 pl-9 bg-card"
+              />
+            </div>
+            {!isClient && (
+              <Button onClick={() => setShowNewEventDialog(true)}>
+                <Plus className="mr-2 h-4 w-4" /> New Event
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -971,7 +866,7 @@ function CalendarPage() {
       {/* EVENT DETAILED DIALOG */}
       {selectedEvent && (
         <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-          <DialogContent className="sm:max-w-[440px]">
+          <DialogContent className="sm:max-w-[440px] border-border bg-card/95 backdrop-blur-md">
             <DialogHeader>
               <div className="flex items-center gap-2 mb-1.5">
                 <Badge

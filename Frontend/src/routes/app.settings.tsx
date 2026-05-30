@@ -233,7 +233,7 @@ function MyProfileTab() {
 
       {/* Confirmation Dialog */}
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <DialogContent className="sm:max-w-md border-border bg-gradient-to-br from-card to-secondary/20">
+        <DialogContent className="sm:max-w-md border-border bg-card/95 backdrop-blur-md">
           <DialogHeader>
             <DialogTitle className="text-xl text-foreground">Confirm Profile Update</DialogTitle>
             <DialogDescription>
